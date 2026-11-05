@@ -1,0 +1,241 @@
+id	title	difficulty	lists	skeleton	fill
+1	Two Sum	Easy	Hot100,Top150,NeetCode	S01	need = target-x，命中返回两个下标
+2	Add Two Numbers	Medium	Hot100,Top150,NeetCode	C01	dummy + 进位，两条链表走完为止
+3	Longest Substring Without Repeating Characters	Medium	Hot100,Top150,NeetCode	S08	当前字符计数 > 1 就收缩
+4	Median of Two Sorted Arrays	Hard	Hot100,Top150,NeetCode	HARD	不套 S12。在短数组上切一刀，左边个数够且左边最大 <= 右边最小
+5	Longest Palindromic Substring	Medium	Hot100,Top150,NeetCode	TX	每个中心向两边扩，保留最长切片
+6	Zigzag Conversion	Medium	Top150	SIM	按行收集，走到顶或底就调转方向
+7	Reverse Integer	Medium	NeetCode	SIM	不断取个位重组，溢出返回 0
+9	Palindrome Number	Easy	Top150	SIM	反转后一半，和前一半比较
+10	Regular Expression Matching	Hard	NeetCode	HARD	不背。s 和 p 的二维匹配，星号看前一个字符
+11	Container With Most Water	Medium	Hot100,Top150,NeetCode	S05	矮的那边往里走，面积取最大
+12	Integer to Roman	Medium	Top150	SIM	面值从大到小减，含 900/400/90/40/9/4
+13	Roman to Integer	Easy	Top150	S01	字符映射成值，左小于右就减去
+14	Longest Common Prefix	Easy	Top150	SIM	以第一个串为基准，纵向比到第一个不同
+15	3Sum	Medium	Hot100,Top150,NeetCode	S05	排序后固定 i，左右夹逼。命中后两边都跳过重复
+17	Letter Combinations of a Phone Number	Medium	Hot100,Top150,NeetCode	TA	下标走 digits，分支是该键上的字母。空串返回空
+19	Remove Nth Node From End of List	Medium	Hot100,Top150,NeetCode	S18	fast 先走 n，然后一起走，删 slow.next
+20	Valid Parentheses	Easy	Hot100,Top150,NeetCode	S22	左括号入栈，右括号必须匹配栈顶
+21	Merge Two Sorted Lists	Easy	Hot100,Top150,NeetCode	S17	dummy，谁小接谁，最后接上剩下的那条
+22	Generate Parentheses	Medium	Hot100,Top150,NeetCode	TN	open < n 放左括号，close < open 放右括号
+23	Merge k Sorted Lists	Hard	Hot100,Top150,NeetCode	S24	小根堆放每条链表的当前头，弹出后把 next 放回
+24	Swap Nodes in Pairs	Medium	Hot100	S15	reverseWindow(head, 1, 2, once=false)
+25	Reverse Nodes in k-Group	Hard	Hot100,Top150,NeetCode	S15	reverseWindow(head, 1, k, once=false)，不足 k 的尾巴不动
+26	Remove Duplicates from Sorted Array	Easy	Top150	S06	保留 slow==0 或与 slow-1 不同的值
+27	Remove Element	Easy	Top150	S06	保留不等于 val 的值
+28	Find the Index of the First Occurrence in a String	Easy	Top150	SIM	朴素匹配：对齐起点，逐字符比
+30	Substring with Concatenation of All Words	Hard	Top150	HARD	不背。定长窗口里再套单词计数
+31	Next Permutation	Medium	Hot100	C06	最长不升后缀，和刚好比它大的交换，后缀反转
+32	Longest Valid Parentheses	Hard	Hot100	S22	栈里放下标，底放 -1。右括号弹出后长度是 i-栈顶
+33	Search in Rotated Sorted Array	Medium	Hot100,Top150,NeetCode	S13	判断哪一半有序，target 在有序半边里就收那半边
+34	Find First and Last Position of Element in Sorted Array	Medium	Hot100,Top150	S12	左端 lower(<)，右端 lower(<=)-1
+35	Search Insert Position	Easy	Hot100,Top150	S12	直接返回 lowerBound
+36	Valid Sudoku	Medium	Top150,NeetCode	S02	行、列、宫三个集合，键里带数字
+39	Combination Sum	Medium	Hot100,Top150,NeetCode	TA	和等于 target 才记录。dfs(i) 允许重复用当前数
+40	Combination Sum II	Medium	NeetCode	TA	排序。同层跳过相同数字。dfs(i+1)
+41	First Missing Positive	Hard	Hot100	C10	值 v 交换到下标 v-1，再扫第一个不在位的
+42	Trapping Rain Water	Hard	Hot100,Top150,NeetCode	C03	矮的那边走，用该侧最高减去当前高度
+43	Multiply Strings	Medium	NeetCode	SIM	结果长度 m+n，num1[i]*num2[j] 加到下标 i+j+1，再处理进位
+45	Jump Game II	Medium	Hot100,Top150,NeetCode	S27	循环到倒数第二格。i==end 时跳数加一，end 更新为 far
+46	Permutations	Medium	Hot100,Top150,NeetCode	TP	used[i]，path 满了就记录
+48	Rotate Image	Medium	Hot100,Top150,NeetCode	C14	主对角线交换，再每行反转
+49	Group Anagrams	Medium	Hot100,Top150,NeetCode	S02	key 是排序后的字符串
+50	Pow(x, n)	Medium	Top150,NeetCode	SIM	指数折半。n 为负先取倒数。注意 n 为 Int 最小值
+51	N-Queens	Hard	Hot100,NeetCode	TP	按行放皇后。列、主对角 r-c、副对角 r+c 三个集合
+52	N-Queens II	Hard	Top150	TP	同 51，只计数不收集棋盘
+53	Maximum Subarray	Medium	Hot100,Top150,NeetCode	TKD	cur = max(x, cur+x)，best = max(best, cur)
+54	Spiral Matrix	Medium	Hot100,Top150,NeetCode	C13	四条边收口。收底边和左边之前先看边界是否交叉
+55	Jump Game	Medium	Hot100,Top150,NeetCode	S27	i > reach 就失败，否则用 i+nums[i] 更新 reach
+56	Merge Intervals	Medium	Hot100,Top150,NeetCode	S25	按起点排序。lastEnd < start 才新开一段
+57	Insert Interval	Medium	Top150,NeetCode	S25	输入已排序。严格在左的先输出，严格在右的先收起 cur
+58	Length of Last Word	Easy	Top150	SIM	从尾部跳过空格，再数到空格
+61	Rotate List	Medium	Top150	S18	先求长度，k %= len。快慢相差 len-k，把后半段接到头
+62	Unique Paths	Medium	Hot100,NeetCode	TED	格子 dp。第一行第一列是 1，其余是上加左
+63	Unique Paths II	Medium	Top150	TED	障碍是 0，否则上加左。起点被挡则整题是 0
+64	Minimum Path Sum	Medium	Hot100,Top150	TED	格子值加上边和左边的较小者。首行首列是前缀和
+66	Plus One	Easy	Top150,NeetCode	SIM	末位加一，逢 9 变 0 继续进位
+67	Add Binary	Easy	Top150	C01	同一段进位，操作数改成字符
+68	Text Justification	Hard	Top150	HARD	不背。按行分配空格，最后一行左对齐
+69	Sqrt(x)	Easy	Top150	S14	找最小的 mid 使 mid*mid > x，答案是 mid-1。乘法用 Long
+70	Climbing Stairs	Easy	Hot100,Top150,NeetCode	TR	a=1 b=1，c=a+b，滚两格
+71	Simplify Path	Medium	Top150	S22	按 / 切，. 跳过，.. 弹栈，最后拼回去
+72	Edit Distance	Medium	Hot100,Top150,NeetCode	TED	相同走对角，不同是 1+min(上,左,对角)
+73	Set Matrix Zeroes	Medium	Hot100,Top150,NeetCode	C11	第一行第一列当标记，col0 单独记。从底部写回
+74	Search a 2D Matrix	Medium	Hot100,Top150,NeetCode	S12	把 m*n 当成一维，值是 matrix[mid/n][mid%n]
+75	Sort Colors	Medium	Hot100	S07	0 和 lo 交换后 mid++，2 和 hi 交换后 mid 不动
+76	Minimum Window Substring	Hard	Hot100,Top150,NeetCode	S09	missing 到 0 才收缩。收缩前记下更短的窗口
+77	Combinations	Medium	Top150	TA	从 1..n 里选，path 长度到 k 就记录。dfs(i+1)
+78	Subsets	Medium	Hot100,NeetCode	TA	每个结点都记录当前 path。dfs(i+1)
+79	Word Search	Medium	Hot100,Top150,NeetCode	TP	used 改成格子访问标记。四个方向，不匹配就剪掉，回来要恢复
+80	Remove Duplicates from Sorted Array II	Medium	Top150	S06	保留 slow<2 或与 slow-2 不同的值
+82	Remove Duplicates from Sorted List II	Medium	Top150	SIM	dummy。一段相等结点整段跳过，不接进结果
+84	Largest Rectangle in Histogram	Hard	Hot100,NeetCode	S21	哨兵 -1 和高度 0。宽度 = i - 左边界 - 1
+86	Partition List	Medium	Top150	SIM	两个 dummy，小于 x 一条，其余一条，最后接上
+88	Merge Sorted Array	Easy	Top150	S06	从尾巴往前写。i=m-1 j=n-1，谁大谁写入
+90	Subsets II	Medium	NeetCode	TA	先排序。同层 nums[i]==nums[i-1] 就跳过
+91	Decode Ways	Medium	NeetCode	TR	末位不是 0 继承 b。两位在 10..26 再加 a
+92	Reverse Linked List II	Medium	Top150	S15	reverseWindow(head, left, right-left+1, once=true)
+94	Binary Tree Inorder Traversal	Easy	Hot100	TD	左根右。空结点返回
+97	Interleaving String	Medium	Top150,NeetCode	TED	dp[i][j] 表示 s1 前 i 和 s2 前 j 能否交错成 s3 的前 i+j
+98	Validate Binary Search Tree	Medium	Hot100,Top150,NeetCode	TT	每个值必须落在 (lo, hi)。用 Long，边界不含
+100	Same Tree	Easy	Top150,NeetCode	TD	都空才 true。值相等且左右都相同
+101	Symmetric Tree	Easy	Hot100,Top150	TD	比较左的左和右的右，左的右和右的左
+102	Binary Tree Level Order Traversal	Medium	Hot100,Top150,NeetCode	TB	先读队列长度，再把这一层收集完
+103	Binary Tree Zigzag Level Order Traversal	Medium	Top150	TB	奇数层反转后再提交
+104	Maximum Depth of Binary Tree	Easy	Hot100,Top150,NeetCode	TD	空返回 0，否则 max(左,右)+1
+105	Construct Binary Tree from Preorder and Inorder Traversal	Medium	Hot100,Top150,NeetCode	TD	前序第一个是根，在中序里切开左右
+106	Construct Binary Tree from Inorder and Postorder Traversal	Medium	Top150	TD	后序最后一个是根，在中序里切开左右
+108	Convert Sorted Array to Binary Search Tree	Easy	Hot100,Top150	TT	每次取中点当根，左右递归
+110	Balanced Binary Tree	Easy	NeetCode	TD	高度差大于 1 就返回 -1。整棵树结果 >= 0 才平衡
+112	Path Sum	Easy	Top150	TD	叶子且剩余值相等。否则把 sum-val 传给孩子
+114	Flatten Binary Tree to Linked List	Medium	Hot100,Top150	TD	先拉平左右，再把左子树接到右边，左孩子置空
+115	Distinct Subsequences	Hard	NeetCode	HARD	不背。匹配则对角加左边，不匹配只拿上边
+117	Populating Next Right Pointers in Each Node II	Medium	Top150	TB	层序。把下一层先串成链表，再下降
+118	Pascal's Triangle	Easy	Hot100	TR	每一行首尾是 1，中间是上一行相邻两数之和
+120	Triangle	Medium	Top150	TR	自底向上，每个位置加上下一行相邻的较小者
+121	Best Time to Buy and Sell Stock	Easy	Hot100,Top150,NeetCode	TS	hold=max(h,-p)，sold=max(s,h+p)，返回 sold
+122	Best Time to Buy and Sell Stock II	Medium	Top150	TS	hold=max(h,s-p)，sold=max(s,h+p)。也可以把所有正差加起来
+123	Best Time to Buy and Sell Stock III	Hard	Top150	TKK	k=2。不塞进三变量那套
+124	Binary Tree Maximum Path Sum	Hard	Hot100,Top150,NeetCode	TD	左右贡献小于 0 就丢掉。best 用 val+左+右，返回值只能带一边
+125	Valid Palindrome	Easy	Top150,NeetCode	S05	跳过非字母数字，转小写再比
+127	Word Ladder	Hard	Top150,NeetCode	S34	BFS。steps 从 1 开始。end 不在词表返回 0
+128	Longest Consecutive Sequence	Medium	Hot100,Top150,NeetCode	S03	只有 x-1 不在集合里才开始数
+129	Sum Root to Leaf Numbers	Medium	Top150	TD	把到当前的数字传下去，叶子才累加
+130	Surrounded Regions	Medium	Top150,NeetCode	S31	只从四条边淹没 O，标成 T。剩下的 O 改成 X
+131	Palindrome Partitioning	Medium	Hot100,NeetCode	TA	start 到 n 才记录。枚举 end，不是回文就剪掉
+133	Clone Graph	Medium	Top150,NeetCode	S31	图版淹没。哈希记下原结点到拷贝，DFS 走邻居
+134	Gas Station	Medium	Top150,NeetCode	S27	油箱变负就把起点改到下一站。总和为负返回 -1
+135	Candy	Hard	Top150	HARD	左右各扫一遍取最大，再相加。不套 S27
+136	Single Number	Easy	Hot100,Top150,NeetCode	TBIT	全部异或
+137	Single Number II	Medium	Top150	TBIT	按位统计模 3，或者两位状态机
+138	Copy List with Random Pointer	Medium	Hot100,Top150,NeetCode	C02	第一遍建拷贝，第二遍接 next 和 random
+139	Word Break	Medium	Hot100,Top150,NeetCode	TW	dp[i] 表示前 i 个字符能否被词典切完
+141	Linked List Cycle	Easy	Hot100,Top150,NeetCode	S16	detectCycle(head) != null
+142	Linked List Cycle II	Medium	Hot100	S16	相遇后一个指针回起点，同速再走，相遇即入口
+143	Reorder List	Medium	NeetCode	S16	找中点切开，反转后半，左右交替接
+146	LRU Cache	Medium	Hot100,Top150,NeetCode	S36	get 挪到头。已存在的 key 先摘掉再插入。淘汰 tail.prev
+148	Sort List	Medium	Hot100,Top150	S17	快慢找中点断开，两边排序后再 mergeTwo
+149	Max Points on a Line	Hard	Top150	HARD	不背。枚举点，斜率做键，垂直和重复点单独计
+150	Evaluate Reverse Polish Notation	Medium	Top150,NeetCode	C08	先弹出的是右操作数
+151	Reverse Words in a String	Medium	Top150	SIM	先整体反转，再把每个单词反转回来
+152	Maximum Product Subarray	Medium	Hot100,NeetCode	TKP	同时保留以当前结尾的最大和最小积，负数会交换它们
+153	Find Minimum in Rotated Sorted Array	Medium	Hot100,Top150,NeetCode	S13	nums[mid] > nums[hi] 就 lo=mid+1，否则 hi=mid
+155	Min Stack	Medium	Hot100,Top150,NeetCode	C07	第二条栈存到这一层为止的最小值
+160	Intersection of Two Linked Lists	Easy	Hot100	S19	走到 null 就换到另一条的头
+162	Find Peak Element	Medium	Top150	S12	nums[mid] < nums[mid+1] 则 lo=mid+1，否则 hi=mid
+167	Two Sum II - Input Array Is Sorted	Medium	Top150,NeetCode	S05	有序。和小了就 lo++，和大了就 hi--。下标从 1 开始
+169	Majority Element	Easy	Hot100,Top150	C09	计数归零就换候选
+172	Factorial Trailing Zeroes	Medium	Top150	SIM	n 里有多少个因子 5，加上 25、125
+173	Binary Search Tree Iterator	Medium	Top150	TT	栈里压住左链。next 弹出后再把右孩子的左链压入
+188	Best Time to Buy and Sell Stock IV	Hard	Top150	TKK	k 很大时直接退化为无限次交易
+189	Rotate Array	Medium	Hot100,Top150	C05	整体反转，反转前 k 个，再反转剩下的。k %= n
+190	Reverse Bits	Easy	Top150,NeetCode	TBIT	循环 32 次，把低位接到结果的高位
+191	Number of 1 Bits	Easy	Top150,NeetCode	TBIT	x = x and (x-1) 直到 0，次数就是 1 的个数
+198	House Robber	Medium	Hot100,Top150,NeetCode	TR	a=0 b=0，c=max(b, a+x)
+199	Binary Tree Right Side View	Medium	Hot100,Top150,NeetCode	TB	每一层只提交最后一个值
+200	Number of Islands	Medium	Hot100,Top150,NeetCode	S31	踩到 1 就改成 0，一次 DFS 是一个岛
+201	Bitwise AND of Numbers Range	Medium	Top150	TBIT	公共前缀。右端不断去掉最低的 1，直到不超过左端
+202	Happy Number	Easy	Top150,NeetCode	S01	平方和当键。再次见到就是环
+205	Isomorphic Strings	Easy	Top150	S01	两条双向映射，任一方向失配就是 false
+206	Reverse Linked List	Easy	Hot100,NeetCode	S15	reverseList。prev、cur、nxt 三指针
+207	Course Schedule	Medium	Hot100,Top150,NeetCode	S30	只返回走出的结点数是否等于 n
+208	Implement Trie (Prefix Tree)	Medium	Hot100,Top150,NeetCode	S28	insert 沿路建结点。search 还要看 end
+209	Minimum Size Subarray Sum	Medium	Top150	S09	窗口和 >= target 就收缩，收缩前记下长度
+210	Course Schedule II	Medium	Top150,NeetCode	S30	返回 order。没走完就返回空数组
+211	Design Add and Search Words Data Structure	Medium	Top150,NeetCode	S28	addWord 就是 insert。'.' 对所有孩子递归
+212	Word Search II	Hard	Top150,NeetCode	S28	词典建 Trie，棋盘上回溯。收录后把 end 清掉
+213	House Robber II	Medium	NeetCode	TR	max(去掉首格的 rob, 去掉尾格的 rob)。长度 1 直接返回
+215	Kth Largest Element in an Array	Medium	Hot100,Top150,NeetCode	S23	小根堆容量 k，返回堆顶
+217	Contains Duplicate	Easy	NeetCode	S01	键就是自己，见过返回 true
+219	Contains Duplicate II	Easy	Top150	S01	见过且下标差 <= k
+221	Maximal Square	Medium	Top150	TED	右下角是 1 时，边长是 min(左,上,左上)+1
+222	Count Complete Tree Nodes	Medium	Top150	S14	先沿左链量高度。右子树满则左子树继续，否则进右子树
+224	Basic Calculator	Hard	Top150	S22	227 再加一个符号栈。遇到左括号把当前符号压进去
+226	Invert Binary Tree	Easy	Hot100,Top150,NeetCode	TD	递归左右，然后左右孩子对调
+228	Summary Ranges	Easy	Top150	S06	一段连续数字收成一个区间，断了就新开
+230	Kth Smallest Element in a BST	Medium	Hot100,Top150,NeetCode	TT	中序，第 k 次访问就返回
+234	Palindrome Linked List	Easy	Hot100	S16	中点起反转右半，再逐个比较
+235	Lowest Common Ancestor of a Binary Search Tree	Medium	NeetCode	TT	两个值都小走左，都大走右，否则就是答案
+236	Lowest Common Ancestor of a Binary Tree	Medium	Hot100,Top150	TL	左右都找到就返回当前结点，否则返回非空的那一侧
+238	Product of Array Except Self	Medium	Hot100,Top150,NeetCode	C04	先写左边前缀积，再从右乘回去
+239	Sliding Window Maximum	Hard	Hot100,NeetCode	S11	队头是窗口最大下标，队内值递减
+240	Search a 2D Matrix II	Medium	Hot100	S05	从右上角出发。大了向左，小了向下
+242	Valid Anagram	Easy	Top150,NeetCode	S02	长度要相同。计数加再减，出现负数就是 false
+252	Meeting Rooms	Easy	NeetCode	S25	按起点排序。前一个 end > 下一个 start 就冲突。相接不算
+253	Meeting Rooms II	Medium	NeetCode	S25	起点 +1，终点 -1。同一时刻先处理 -1
+261	Graph Valid Tree	Medium	NeetCode	S29	边数必须是 n-1，且不能有一次 union 失败
+268	Missing Number	Easy	NeetCode	TBIT	把 0..n 和下标、值全部异或
+269	Alien Dictionary	Hard	NeetCode	S30	相邻单词找第一条不同的字符建边。前词是后词的前缀则非法
+271	Encode and Decode Strings	Medium	NeetCode	SIM	编码成长度加 # 加内容。解码时先读长度
+274	H-Index	Medium	Top150	SIM	升序排序后从右往左，最大的 n-i 且 citations[i] >= n-i
+279	Perfect Squares	Medium	Hot100	TU	硬币换成完全平方数。完全背包求最小个数
+283	Move Zeroes	Easy	Hot100	S06	非 0 往前写，剩下的位置填 0
+286	Walls and Gates	Medium	NeetCode	S32	门是源，墙是 -1，空房间写下距离
+287	Find the Duplicate Number	Medium	Hot100,NeetCode	S16	下标当链表，findDuplicate
+289	Game of Life	Medium	Top150	SIM	用第二位暂存下一状态，第二遍再右移
+290	Word Pattern	Easy	Top150	S01	单词和字符双向映射
+295	Find Median from Data Stream	Hard	Hot100,Top150,NeetCode	C15	大根堆放较小的一半，小根堆放较大的一半
+297	Serialize and Deserialize Binary Tree	Hard	NeetCode	TD	前序序列化，空结点写成 #。反序列化用队列弹出
+300	Longest Increasing Subsequence	Medium	Hot100,Top150,NeetCode	TLIS	tails 里二分，找到第一个 >= x 的位置替换
+309	Best Time to Buy and Sell Stock with Cooldown	Medium	NeetCode	TS	hold=max(h, r-p)，sold=h+p，rest=max(r, s)
+312	Burst Balloons	Hard	NeetCode	TBURST	可选 Hard。区间 (l,r) 里 k 最后爆，硬币是 a[l]*a[k]*a[r]
+322	Coin Change	Medium	Hot100,Top150,NeetCode	TU	硬币在外，容量正序。初始化 amount+1，dp[0]=0
+323	Number of Connected Components in an Undirected Graph	Medium	NeetCode	S29	union 成功就把连通块数减一
+329	Longest Increasing Path in a Matrix	Hard	NeetCode	TD	记忆化 DFS。只能走向严格更高的邻居
+332	Reconstruct Itinerary	Hard	NeetCode	HARD	不背。欧拉路径。边按字典序，用完就删
+338	Counting Bits	Easy	NeetCode	TBIT	dp[i] = dp[i>>1] + (i 的最低位)
+347	Top K Frequent Elements	Medium	Hot100,NeetCode	S23	先计数，小根堆按频次比较，容量 k
+355	Design Twitter	Medium	NeetCode	SIM	用户关注集合加自己的推文列表。取前 10 条用堆合并
+371	Sum of Two Integers	Medium	NeetCode	TBIT	异或是无进位和，与再左移是进位，循环到进位为 0
+373	Find K Pairs with Smallest Sums	Medium	Top150	S24	堆里放 (i,j)。弹出后推 (i, j+1)，i 只在 j=0 时增加
+380	Insert Delete GetRandom O(1)	Medium	Top150	SIM	数组加下标哈希。删除时和最后一个交换
+383	Ransom Note	Easy	Top150	S01	杂志计数，赎金信递减，出现负数就 false
+392	Is Subsequence	Easy	Top150	S06	一个指针走 t，能把 s 按顺序走完就是 true
+394	Decode String	Medium	Hot100	S22	帧是次数和左括号前的字符串
+399	Evaluate Division	Medium	Top150	S31	等式建成带权图，DFS 时把路径上的倍数乘起来
+416	Partition Equal Subset Sum	Medium	Hot100,NeetCode	TK	和为奇数直接 false。容量是和的一半，布尔或
+417	Pacific Atlantic Water Flow	Medium	NeetCode	S31	从两组边界往高处走，两边都能到的格子留下
+424	Longest Repeating Character Replacement	Medium	NeetCode	S08	窗口长减 maxFreq 大于 k 就收缩。maxFreq 只增不减
+427	Construct Quad Tree	Medium	Top150	TD	四块都是叶子且值相同就合并，否则切开
+433	Minimum Genetic Mutation	Medium	Top150	S34	同 127。字母只有 ACGT，失败返回 -1，步数从 0 开始
+435	Non-overlapping Intervals	Medium	NeetCode	S26	按结束排序。start >= end 才能再留一段。返回 n-留下的段数
+437	Path Sum III	Medium	Hot100	S04	根到当前的前缀和。递归返回时把这个前缀从 map 里减掉
+438	Find All Anagrams in a String	Medium	Hot100	S10	窗口长等于 p。miss 到 0 就记录起点
+452	Minimum Number of Arrows to Burst Balloons	Medium	Top150	S26	按结束排序。start > end 才需要新箭。返回箭数
+494	Target Sum	Medium	NeetCode	TK	容量是 (sum+target)/2。和与 target 奇偶不同或越界就 0。dp 累加方案
+502	IPO	Hard	Top150	HARD	不背。资本小根堆挑项目，利润大根堆挑当前能做的
+518	Coin Change II	Medium	NeetCode	TU	硬币在外，容量正序，dp[c] += dp[c-coin]，求方案数
+530	Minimum Absolute Difference in BST	Easy	Top150	TT	中序相邻两项的差取最小
+543	Diameter of Binary Tree	Easy	Hot100,NeetCode	TD	best = max(best, 左高+右高)。返回值是高度
+560	Subarray Sum Equals K	Medium	Hot100	S04	map[0]=1。累加 map[pref-k]
+567	Permutation in String	Medium	NeetCode	S10	同 438。miss 到 0 直接返回 true
+572	Subtree of Another Tree	Easy	NeetCode	TD	判断两棵树相同。对每个结点试一次
+621	Task Scheduler	Medium	NeetCode	S23	不建堆。(maxF-1)*(n+1)+有多少任务等于 maxF，再和任务数取最大
+637	Average of Levels in Binary Tree	Easy	Top150	TB	每一层求平均值
+647	Palindromic Substrings	Medium	NeetCode	TX	和 5 同一套扩展。每成功扩一步，计数加一
+678	Valid Parenthesis String	Medium	NeetCode	C16	lo 是最少还开着几个，hi 是最多。hi<0 失败，结束时 lo==0
+684	Redundant Connection	Medium	NeetCode	S29	第一根 union 失败的边就是答案
+695	Max Area of Island	Medium	NeetCode	S31	同 200，一次 DFS 里计数，取最大
+703	Kth Largest Element in a Stream	Easy	NeetCode	S23	小根堆容量 k。add 之后如果超了就弹出
+704	Binary Search	Easy	NeetCode	S12	lowerBound 落在 target 上才返回下标
+739	Daily Temperatures	Medium	Hot100,NeetCode	S20	弹出时写下标差
+743	Network Delay Time	Medium	NeetCode	S33	结点从 1 编号。答案是 dist 的最大值，有到不了的就 -1
+746	Min Cost Climbing Stairs	Easy	NeetCode	TR	同爬楼梯，c = min(a,b) + cost[i]
+763	Partition Labels	Medium	Hot100,NeetCode	C12	每个字母的最后位置。i 走到 end 就切一刀
+778	Swim in Rising Water	Hard	NeetCode	S14	二分水位 t。判定是只走高度 <= t 的格子能否 BFS 到终点
+787	Cheapest Flights Within K Stops	Medium	NeetCode	S35	做 k+1 轮。读 dist，写 next。不要用 Dijkstra
+846	Hand of Straights	Medium	NeetCode	S03	排序后从最小牌开始，连续 groupSize 张各减一次
+853	Car Fleet	Medium	NeetCode	S20	位置从右往左。到达时间 <= 栈顶就并进同一车队
+875	Koko Eating Bananas	Medium	NeetCode	S14	lo=1 hi=max。小时和用向上取整，<= h 就收右端
+909	Snakes and Ladders	Medium	Top150	S34	编号先换成坐标。蛇和梯子是瞬移，入队的是落点
+918	Maximum Sum Circular Subarray	Medium	Top150	TKD	普通 Kadane 的最大，和 total 减去 Kadane 的最小。全是负数就取普通最大
+973	K Closest Points to Origin	Medium	NeetCode	S23	大根堆按距离，容量 k，满了丢掉更远的
+981	Time Based Key-Value Store	Medium	NeetCode	SIM	每个 key 一条按时间追加的列表。查询时二分最后一个 <= timestamp
+994	Rotting Oranges	Medium	Hot100,NeetCode	S32	2 是源，0 是墙。没有新鲜橘子返回 0，有剩的返回 -1
+1046	Last Stone Weight	Easy	NeetCode	S23	大根堆。每次弹出两个，差大于 0 再放回
+1143	Longest Common Subsequence	Medium	Hot100,NeetCode	TLCS	相同取对角加一，不同取上和左的较大者
+1448	Count Good Nodes in Binary Tree	Medium	NeetCode	TD	往下传路径上的最大值。当前值大于等于它就算一个
+1584	Min Cost to Connect All Points	Medium	NeetCode	S29	边按距离排序，union 成功就加上这条距离
+1851	Minimum Interval to Include Each Query	Hard	NeetCode	HARD	不背。查询按左端点排序，堆里留覆盖当前查询的区间
+1899	Merge Triplets to Form Target Triplet	Medium	NeetCode	SIM	三元组每一维都 <= target 才能留下。留下的在某一维上必须能凑出 target
+2013	Detect Squares	Medium	NeetCode	S01	点集计数。枚举对角，要求另外两个角都存在

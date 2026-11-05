@@ -1,3 +1,4 @@
+// 树、回溯、DP。和 ArrayGraphSkeletons.kt 一起用。编号见 interview/INDEX.md。
 class TreeNode(var `val`: Int) {
     var left: TreeNode? = null
     var right: TreeNode? = null
