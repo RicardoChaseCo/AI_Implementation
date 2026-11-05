@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hot 240 · 哈希</title>
+<style>
+:root {
+  --bg: #ffffff;
+  --ink: #1f2328;
+  --muted: #656d76;
+  --line: #d8dee4;
+  --soft: #f6f8fa;
+  --accent: #0969da;
+  --nav: 232px;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  color: var(--ink);
+  background: var(--bg);
+  font: 15px/1.6 "Segoe UI", "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+}
+a { color: inherit; text-decoration: none; }
+.nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: var(--nav);
+  overflow: auto;
+  padding: 28px 18px 40px;
+  border-right: 1px solid var(--line);
+  background: #fff;
+}
+.brand {
+  margin: 0 0 18px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+.brand span {
+  display: block;
+  margin-top: 2px;
+  color: var(--muted);
+  font-weight: 400;
+}
+.glabel {
+  margin: 16px 0 6px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.nav ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.nav li a {
+  display: flex;
+  gap: 8px;
+  padding: 4px 0;
+  font-size: 13px;
+  line-height: 1.45;
+}
+.nav li a:hover { color: var(--accent); }
+.num {
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+  min-width: 2.6em;
+}
+.main {
+  margin-left: var(--nav);
+  max-width: 860px;
+  padding: 36px 48px 96px;
+}
+h1 {
+  margin: 0 0 8px;
+  font-size: 22px;
+  font-weight: 600;
+}
+.lead {
+  margin: 0 0 28px;
+  color: var(--muted);
+}
+h2 {
+  margin: 36px 0 6px;
+  font-size: 16px;
+  font-weight: 600;
+}
+.note {
+  margin: 0 0 8px;
+  color: var(--muted);
+}
+article {
+  padding-top: 22px;
+  scroll-margin-top: 18px;
+}
+article:target h3 { color: var(--accent); }
+h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+.meta {
+  margin: 2px 0 10px;
+  color: var(--muted);
+  font-size: 13px;
+}
+pre {
+  margin: 0;
+  padding: 16px 18px;
+  overflow: auto;
+  background: var(--soft);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+code {
+  font: 13.5px/1.75 ui-monospace, "SFMono-Regular", "JetBrains Mono", Consolas, monospace;
+  color: #24292f;
+}
+.kw { color: #cf222e; }
+.ty { color: #953800; }
+.st { color: #0a3069; }
+.cm { color: #6e7781; }
+.nu { color: #0550ae; }
+@media (max-width: 800px) {
+  .nav {
+    position: static;
+    width: auto;
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .main {
+    margin-left: 0;
+    padding: 24px 18px 64px;
+  }
+}
+</style>
+</head>
+<body>
+<aside class="nav">
+  <p class="brand">Hot 240<span>哈希 · 16 题</span></p>
+  <p class="glabel">先查再写</p><ul><li><a href="#p1"><span class="num">1</span> 两数之和</a></li><li><a href="#p217"><span class="num">217</span> 存在重复元素</a></li><li><a href="#p219"><span class="num">219</span> 存在重复元素 II</a></li><li><a href="#p202"><span class="num">202</span> 快乐数</a></li></ul><p class="glabel">双向映射</p><ul><li><a href="#p205"><span class="num">205</span> 同构字符串</a></li><li><a href="#p290"><span class="num">290</span> 单词规律</a></li></ul><p class="glabel">计数</p><ul><li><a href="#p383"><span class="num">383</span> 赎金信</a></li><li><a href="#p242"><span class="num">242</span> 有效的字母异位词</a></li></ul><p class="glabel">分桶</p><ul><li><a href="#p49"><span class="num">49</span> 字母异位词分组</a></li><li><a href="#p36"><span class="num">36</span> 有效的数独</a></li></ul><p class="glabel">连续段</p><ul><li><a href="#p128"><span class="num">128</span> 最长连续序列</a></li><li><a href="#p846"><span class="num">846</span> 一手顺子</a></li></ul><p class="glabel">前缀和</p><ul><li><a href="#p560"><span class="num">560</span> 和为 K 的子数组</a></li><li><a href="#p437"><span class="num">437</span> 路径总和 III</a></li></ul><p class="glabel">固定表</p><ul><li><a href="#p13"><span class="num">13</span> 罗马数字转整数</a></li></ul><p class="glabel">点计数</p><ul><li><a href="#p2013"><span class="num">2013</span> 检测正方形</a></li></ul>
+</aside>
+<main class="main">
+  <h1>哈希</h1>
+  <p class="lead">同一组里的函数保持同一种写法。这一页先看风格，后面的组会接在左侧。</p>
+  <section class="group" id="g-先查再写"><h2>先查再写</h2><p class="note">循环里先用当前值去表里找，找不到再把当前值写进去。</p><article id="p1"><h3><span class="num">1</span> 两数之和</h3><p class="meta">Two Sum · Easy</p><pre><code><span class="kw">fun</span> twoSum(nums: <span class="ty">IntArray</span>, target: <span class="ty">Int</span>): <span class="ty">IntArray</span> {
+    <span class="kw">val</span> map = <span class="ty">HashMap</span>&lt;<span class="ty">Int</span>, <span class="ty">Int</span>&gt;()
+
+    <span class="kw">for</span> (i <span class="kw">in</span> nums.indices) {
+        <span class="kw">val</span> x = nums[i]
+        <span class="kw">val</span> need = target - x
+
+        <span class="kw">val</span> found = map[need]
+        <span class="kw">if</span> (found != <span class="kw">null</span>) {
+            <span class="kw">return</span> intArrayOf(found, i)
+        }
+
+        map[x] = i
+    }
+
+    <span class="kw">return</span> intArrayOf()
+}
+</code></pre></article><article id="p217"><h3><span class="num">217</span> 存在重复元素</h3><p class="meta">Contains Duplicate · Easy</p><pre><code><span class="kw">fun</span> containsDuplicate(nums: <span class="ty">IntArray</span>): <span class="ty">Boolean</span> {
+    <span class="kw">val</span> seen = <span class="ty">HashSet</span>&lt;<span class="ty">Int</span>&gt;()
+
+    <span class="kw">for</span> (i <span class="kw">in</span> nums.indices) {
+        <span class="kw">val</span> x = nums[i]
+
+        <span class="kw">if</span> (seen.contains(x)) {
+            <span class="kw">return</span> <span class="kw">true</span>
+        }
+
+        seen.add(x)
+    }
+
+    <span class="kw">return</span> <span class="kw">false</span>
+}
+</code></pre></article><article id="p219"><h3><span class="num">219</span> 存在重复元素 II</h3><p class="meta">Contains Duplicate II · Easy</p><pre><code><span class="kw">fun</span> containsNearbyDuplicate(nums: <span class="ty">IntArray</span>, k: <span class="ty">Int</span>): <span class="ty">Boolean</span> {
+    <span class="kw">val</span> map = <span class="ty">HashMap</span>&lt;<span class="ty">Int</span>, <span class="ty">Int</span>&gt;()
+
+    <span class="kw">for</span> (i <span class="kw">in</span> nums.indices) {
+        <span class="kw">val</span> x = nums[i]
+        <span class="kw">val</span> found = map[x]
+
+        <span class="kw">if</span> (found != <span class="kw">null</span> &amp;&amp; i - found &lt;= k) {
+            <span class="kw">return</span> <span class="kw">true</span>
+        }
+
+        map[x] = i
+    }
+
+    <span class="kw">return</span> <span class="kw">false</span>
+}
+</code></pre></article><article id="p202"><h3><span class="num">202</span> 快乐数</h3><p class="meta">Happy Number · Easy</p><pre><code><span class="kw">fun</span> isHappy(n: <span class="ty">Int</span>): <span class="ty">Boolean</span> {
+    <span class="kw">val</span> seen = <span class="ty">HashSet</span>&lt;<span class="ty">Int</span>&gt;()
+    <span class="kw">var</span> x = n
+
+    <span class="kw">while</span> (x != <span class="nu">1</span>) {
+        <span class="kw">if</span> (seen.contains(x)) {
+            <span class="kw">return</span> <span class="kw">false</span>
+        }
+        seen.add(x)
+
+        <span class="kw">var</span> sum = <span class="nu">0</span>
+        <span class="kw">var</span> y = x
+        <span class="kw">while</span> (y &gt; <span class="nu">0</span>) {
+            <span class="kw">val</span> digit = y % <span class="nu">10</span>
+            sum = sum + digit * digit
+            y = y / <span class="nu">10</span>
+        }
+        x = sum
+    }
+
+    <span class="kw">return</span> <span class="kw">true</span>
+}
+</code></pre></article></section><section class="group" id="g-双向映射"><h2>双向映射</h2><p class="note">左右各一张表。一边已经有映射而且对不上，就失败。</p><article id="p205"><h3><span class="num">205</span> 同构字符串</h3><p class="meta">Isomorphic Strings · Easy</p><pre><code><span class="kw">fun</span> isIsomorphic(s: <span class="ty">String</span>, t: <span class="ty">String</span>): <span class="ty">Boolean</span> {
+    <span class="kw">if</span> (s.length != t.length) {
+        <span class="kw">return</span> <span class="kw">false</span>
+    }
+
+    <span class="kw">val</span> sToT = <span class="ty">HashMap</span>&lt;<span class="ty">Char</span>, <span class="ty">Char</span>&gt;()
+    <span class="kw">val</span> tToS = <span class="ty">HashMap</span>&lt;<span class="ty">Char</span>, <span class="ty">Char</span>&gt;()
+
+    <span class="kw">for</span> (i <span class="kw">in</span> s.indices) {
+        <span class="kw">val</span> a = s[i]
+        <span class="kw">val</span> b = t[i]
+
+        <span class="kw">val</span> aMapped = sToT[a]
+        <span class="kw">if</span> (aMapped != <span class="kw">null</span> &amp;&amp; aMapped != b) {
+            <span class="kw">return</span> <span class="kw">false</span>
+        }
+
+        <span class="kw">val</span> bMapped = tToS[b]
+        <span class="kw">if</span> (bMapped != <span class="kw">null</span> &amp;&amp; bMapped != a) {
+            <span class="kw">return</span> <span class="kw">false</span>
+        }
+
+        sToT[a] = b
+        tToS[b] = a
+    }
+
+    <span class="kw">return</span> <span class="kw">true</span>
+}
+</code></pre></article><article id="p290"><h3><span class="num">290</span> 单词规律</h3><p class="meta">Word Pattern · Easy</p><pre><code><span class="kw">fun</span> wordPattern(pattern: <span class="ty">String</span>, s: <span class="ty">String</span>): <span class="ty">Boolean</span> {
+    <span class="kw">val</span> words = s.split(<span class="st">&quot; &quot;</span>)
+    <span class="kw">if</span> (pattern.length != words.size) {
+        <span class="kw">return</span> <span class="kw">false</span>
+    }
+
+    <span class="kw">val</span> pToW = <span class="ty">HashMap</span>&lt;<span class="ty">Char</span>, <span class="ty">String</span>&gt;()
+    <span class="kw">val</span> wToP = <span class="ty">HashMap</span>&lt;<span class="ty">String</span>, <span class="ty">Char</span>&gt;()
+
+    <span class="kw">for</span> (i <span class="kw">in</span> pattern.indices) {
+        <span class="kw">val</span> a = pattern[i]
+        <span class="kw">val</span> b = words[i]
+
+        <span class="kw">val</span> aMapped = pToW[a]
+        <span class="kw">if</span> (aMapped != <span class="kw">null</span> &amp;&amp; aMapped != b) {
+            <span class="kw">return</span> <span class="kw">false</span>
+        }
+
+        <span class="kw">val</span> bMapped = wToP[b]
+        <span class="kw">if</span> (bMapped != <span class="kw">null</span> &amp;&amp; bMapped != a) {
+            <span class="kw">return</span> <span class="kw">false</span>
+        }
+
+        pToW[a] = b
+        wToP[b] = a
+    }
+
+    <span class="kw">return</span> <span class="kw">true</span>
+}
+</code></pre></article></section><section class="group" id="g-计数"><h2>计数</h2><p class="note">第一遍加，第二遍减。减到 0 以下就失败。</p><article id="p383"><h3><span class="num">383</span> 赎金信</h3><p class="meta">Ransom Note · Easy</p><pre><code><span class="kw">fun</span> canConstruct(ransomNote: <span class="ty">String</span>, magazine: <span class="ty">String</span>): <span class="ty">Boolean</span> {
+    <span class="kw">val</span> count = <span class="ty">HashMap</span>&lt;<span class="ty">Char</span>, <span class="ty">Int</span>&gt;()
+
+    <span class="kw">for</span> (ch <span class="kw">in</span> magazine) {
+        <span class="kw">val</span> old = count[ch] ?: <span class="nu">0</span>
+        count[ch] = old + <span class="nu">1</span>
+    }
+
+    <span class="kw">for</span> (ch <span class="kw">in</span> ransomNote) {
+        <span class="kw">val</span> old = count[ch] ?: <span class="nu">0</span>
+        <span class="kw">if</span> (old == <span class="nu">0</span>) {
+            <span class="kw">return</span> <span class="kw">false</span>
+        }
+        count[ch] = old - <span class="nu">1</span>
+    }
+
+    <span class="kw">return</span> <span class="kw">true</span>
+}
+</code></pre></article><article id="p242"><h3><span class="num">242</span> 有效的字母异位词</h3><p class="meta">Valid Anagram · Easy</p><pre><code><span class="kw">fun</span> isAnagram(s: <span class="ty">String</span>, t: <span class="ty">String</span>): <span class="ty">Boolean</span> {
+    <span class="kw">if</span> (s.length != t.length) {
+        <span class="kw">return</span> <span class="kw">false</span>
+    }
+
+    <span class="kw">val</span> count = <span class="ty">HashMap</span>&lt;<span class="ty">Char</span>, <span class="ty">Int</span>&gt;()
+
+    <span class="kw">for</span> (ch <span class="kw">in</span> s) {
+        <span class="kw">val</span> old = count[ch] ?: <span class="nu">0</span>
+        count[ch] = old + <span class="nu">1</span>
+    }
+
+    <span class="kw">for</span> (ch <span class="kw">in</span> t) {
+        <span class="kw">val</span> old = count[ch] ?: <span class="nu">0</span>
+        <span class="kw">if</span> (old == <span class="nu">0</span>) {
+            <span class="kw">return</span> <span class="kw">false</span>
+        }
+        count[ch] = old - <span class="nu">1</span>
+    }
+
+    <span class="kw">return</span> <span class="kw">true</span>
+}
+</code></pre></article></section><section class="group" id="g-分桶"><h2>分桶</h2><p class="note">先做成一个键，再放进这个键对应的桶里。</p><article id="p49"><h3><span class="num">49</span> 字母异位词分组</h3><p class="meta">Group Anagrams · Medium</p><pre><code><span class="kw">fun</span> groupAnagrams(strs: <span class="ty">Array</span>&lt;<span class="ty">String</span>&gt;): <span class="ty">List</span>&lt;<span class="ty">List</span>&lt;<span class="ty">String</span>&gt;&gt; {
+    <span class="kw">val</span> map = <span class="ty">HashMap</span>&lt;<span class="ty">String</span>, <span class="ty">MutableList</span>&lt;<span class="ty">String</span>&gt;&gt;()
+
+    <span class="kw">for</span> (s <span class="kw">in</span> strs) {
+        <span class="kw">val</span> chars = s.toCharArray()
+        chars.sort()
+        <span class="kw">val</span> key = <span class="ty">String</span>(chars)
+
+        <span class="kw">var</span> bucket = map[key]
+        <span class="kw">if</span> (bucket == <span class="kw">null</span>) {
+            bucket = mutableListOf()
+            map[key] = bucket
+        }
+        bucket.add(s)
+    }
+
+    <span class="kw">val</span> answer = mutableListOf&lt;<span class="ty">List</span>&lt;<span class="ty">String</span>&gt;&gt;()
+    <span class="kw">for</span> (bucket <span class="kw">in</span> map.values) {
+        answer.add(bucket)
+    }
+    <span class="kw">return</span> answer
+}
+</code></pre></article><article id="p36"><h3><span class="num">36</span> 有效的数独</h3><p class="meta">Valid Sudoku · Medium</p><pre><code><span class="kw">fun</span> isValidSudoku(board: <span class="ty">Array</span>&lt;CharArray&gt;): <span class="ty">Boolean</span> {
+    <span class="kw">val</span> rows = <span class="ty">Array</span>(<span class="nu">9</span>) { <span class="ty">HashSet</span>&lt;<span class="ty">Char</span>&gt;() }
+    <span class="kw">val</span> cols = <span class="ty">Array</span>(<span class="nu">9</span>) { <span class="ty">HashSet</span>&lt;<span class="ty">Char</span>&gt;() }
+    <span class="kw">val</span> boxes = <span class="ty">Array</span>(<span class="nu">9</span>) { <span class="ty">HashSet</span>&lt;<span class="ty">Char</span>&gt;() }
+
+    <span class="kw">for</span> (r <span class="kw">in</span> <span class="nu">0</span> <span class="kw">until</span> <span class="nu">9</span>) {
+        <span class="kw">for</span> (c <span class="kw">in</span> <span class="nu">0</span> <span class="kw">until</span> <span class="nu">9</span>) {
+            <span class="kw">val</span> ch = board[r][c]
+            <span class="kw">if</span> (ch == <span class="st">&#x27;.&#x27;</span>) {
+                <span class="kw">continue</span>
+            }
+
+            <span class="kw">val</span> box = (r / <span class="nu">3</span>) * <span class="nu">3</span> + (c / <span class="nu">3</span>)
+            <span class="kw">if</span> (rows[r].contains(ch) || cols[c].contains(ch) || boxes[box].contains(ch)) {
+                <span class="kw">return</span> <span class="kw">false</span>
+            }
+
+            rows[r].add(ch)
+            cols[c].add(ch)
+            boxes[box].add(ch)
+        }
+    }
+
+    <span class="kw">return</span> <span class="kw">true</span>
+}
+</code></pre></article></section><section class="group" id="g-连续段"><h2>连续段</h2><p class="note">只从一段的起点开始数，避免把同一段数很多次。</p><article id="p128"><h3><span class="num">128</span> 最长连续序列</h3><p class="meta">Longest Consecutive Sequence · Medium</p><pre><code><span class="kw">fun</span> longestConsecutive(nums: <span class="ty">IntArray</span>): <span class="ty">Int</span> {
+    <span class="kw">val</span> set = <span class="ty">HashSet</span>&lt;<span class="ty">Int</span>&gt;()
+    <span class="kw">for</span> (x <span class="kw">in</span> nums) {
+        set.add(x)
+    }
+
+    <span class="kw">var</span> best = <span class="nu">0</span>
+
+    <span class="kw">for</span> (x <span class="kw">in</span> set) {
+        <span class="kw">if</span> (set.contains(x - <span class="nu">1</span>)) {
+            <span class="kw">continue</span>
+        }
+
+        <span class="kw">var</span> y = x
+        <span class="kw">var</span> length = <span class="nu">1</span>
+        <span class="kw">while</span> (set.contains(y + <span class="nu">1</span>)) {
+            y = y + <span class="nu">1</span>
+            length = length + <span class="nu">1</span>
+        }
+
+        <span class="kw">if</span> (length &gt; best) {
+            best = length
+        }
+    }
+
+    <span class="kw">return</span> best
+}
+</code></pre></article><article id="p846"><h3><span class="num">846</span> 一手顺子</h3><p class="meta">Hand of Straights · Medium</p><pre><code><span class="kw">fun</span> isNStraightHand(hand: <span class="ty">IntArray</span>, groupSize: <span class="ty">Int</span>): <span class="ty">Boolean</span> {
+    <span class="kw">if</span> (hand.size % groupSize != <span class="nu">0</span>) {
+        <span class="kw">return</span> <span class="kw">false</span>
+    }
+
+    <span class="kw">val</span> count = <span class="ty">HashMap</span>&lt;<span class="ty">Int</span>, <span class="ty">Int</span>&gt;()
+    <span class="kw">for</span> (card <span class="kw">in</span> hand) {
+        <span class="kw">val</span> old = count[card] ?: <span class="nu">0</span>
+        count[card] = old + <span class="nu">1</span>
+    }
+
+    <span class="kw">val</span> starts = count.keys.sorted()
+
+    <span class="kw">for</span> (start <span class="kw">in</span> starts) {
+        <span class="kw">val</span> need = count[start] ?: <span class="nu">0</span>
+        <span class="kw">if</span> (need == <span class="nu">0</span>) {
+            <span class="kw">continue</span>
+        }
+
+        <span class="kw">for</span> (offset <span class="kw">in</span> <span class="nu">0</span> <span class="kw">until</span> groupSize) {
+            <span class="kw">val</span> card = start + offset
+            <span class="kw">val</span> have = count[card] ?: <span class="nu">0</span>
+            <span class="kw">if</span> (have &lt; need) {
+                <span class="kw">return</span> <span class="kw">false</span>
+            }
+            count[card] = have - need
+        }
+    }
+
+    <span class="kw">return</span> <span class="kw">true</span>
+}
+</code></pre></article></section><section class="group" id="g-前缀和"><h2>前缀和</h2><p class="note">表里存已经见过的前缀和。当前前缀减去 k，就是要找的另一端。</p><article id="p560"><h3><span class="num">560</span> 和为 K 的子数组</h3><p class="meta">Subarray Sum Equals K · Medium</p><pre><code><span class="kw">fun</span> subarraySum(nums: <span class="ty">IntArray</span>, k: <span class="ty">Int</span>): <span class="ty">Int</span> {
+    <span class="kw">val</span> map = <span class="ty">HashMap</span>&lt;<span class="ty">Int</span>, <span class="ty">Int</span>&gt;()
+    map[<span class="nu">0</span>] = <span class="nu">1</span>
+
+    <span class="kw">var</span> prefix = <span class="nu">0</span>
+    <span class="kw">var</span> answer = <span class="nu">0</span>
+
+    <span class="kw">for</span> (x <span class="kw">in</span> nums) {
+        prefix = prefix + x
+
+        <span class="kw">val</span> need = prefix - k
+        <span class="kw">val</span> found = map[need] ?: <span class="nu">0</span>
+        answer = answer + found
+
+        <span class="kw">val</span> old = map[prefix] ?: <span class="nu">0</span>
+        map[prefix] = old + <span class="nu">1</span>
+    }
+
+    <span class="kw">return</span> answer
+}
+</code></pre></article><article id="p437"><h3><span class="num">437</span> 路径总和 III</h3><p class="meta">Path Sum III · Medium</p><pre><code><span class="kw">class</span> <span class="ty">TreeNode</span>(<span class="kw">var</span> `val`: <span class="ty">Int</span>) {
+    <span class="kw">var</span> left: <span class="ty">TreeNode</span>? = <span class="kw">null</span>
+    <span class="kw">var</span> right: <span class="ty">TreeNode</span>? = <span class="kw">null</span>
+}
+
+<span class="kw">fun</span> pathSum(root: <span class="ty">TreeNode</span>?, targetSum: <span class="ty">Int</span>): <span class="ty">Int</span> {
+    <span class="kw">val</span> map = <span class="ty">HashMap</span>&lt;<span class="ty">Long</span>, <span class="ty">Int</span>&gt;()
+    map[<span class="nu">0L</span>] = <span class="nu">1</span>
+
+    <span class="kw">fun</span> dfs(node: <span class="ty">TreeNode</span>?, prefix: <span class="ty">Long</span>): <span class="ty">Int</span> {
+        <span class="kw">if</span> (node == <span class="kw">null</span>) {
+            <span class="kw">return</span> <span class="nu">0</span>
+        }
+
+        <span class="kw">val</span> current = prefix + node.`val`.toLong()
+        <span class="kw">val</span> need = current - targetSum.toLong()
+        <span class="kw">var</span> answer = map[need] ?: <span class="nu">0</span>
+
+        <span class="kw">val</span> old = map[current] ?: <span class="nu">0</span>
+        map[current] = old + <span class="nu">1</span>
+
+        answer = answer + dfs(node.left, current)
+        answer = answer + dfs(node.right, current)
+
+        map[current] = old
+        <span class="kw">return</span> answer
+    }
+
+    <span class="kw">return</span> dfs(root, <span class="nu">0L</span>)
+}
+</code></pre></article></section><section class="group" id="g-固定表"><h2>固定表</h2><p class="note">表在循环外面建好，循环里只查。</p><article id="p13"><h3><span class="num">13</span> 罗马数字转整数</h3><p class="meta">Roman to Integer · Easy</p><pre><code><span class="kw">fun</span> romanToInt(s: <span class="ty">String</span>): <span class="ty">Int</span> {
+    <span class="kw">val</span> value = <span class="ty">HashMap</span>&lt;<span class="ty">Char</span>, <span class="ty">Int</span>&gt;()
+    value[<span class="st">&#x27;I&#x27;</span>] = <span class="nu">1</span>
+    value[<span class="st">&#x27;V&#x27;</span>] = <span class="nu">5</span>
+    value[<span class="st">&#x27;X&#x27;</span>] = <span class="nu">10</span>
+    value[<span class="st">&#x27;L&#x27;</span>] = <span class="nu">50</span>
+    value[<span class="st">&#x27;C&#x27;</span>] = <span class="nu">100</span>
+    value[<span class="st">&#x27;D&#x27;</span>] = <span class="nu">500</span>
+    value[<span class="st">&#x27;M&#x27;</span>] = <span class="nu">1000</span>
+
+    <span class="kw">var</span> answer = <span class="nu">0</span>
+
+    <span class="kw">for</span> (i <span class="kw">in</span> s.indices) {
+        <span class="kw">val</span> current = value.getValue(s[i])
+        <span class="kw">val</span> next = <span class="kw">if</span> (i + <span class="nu">1</span> &lt; s.length) value.getValue(s[i + <span class="nu">1</span>]) <span class="kw">else</span> <span class="nu">0</span>
+
+        <span class="kw">if</span> (current &lt; next) {
+            answer = answer - current
+        } <span class="kw">else</span> {
+            answer = answer + current
+        }
+    }
+
+    <span class="kw">return</span> answer
+}
+</code></pre></article></section><section class="group" id="g-点计数"><h2>点计数</h2><p class="note">同一个 x 上的点放一行。查询时用行里的另一个点定边长。</p><article id="p2013"><h3><span class="num">2013</span> 检测正方形</h3><p class="meta">Detect Squares · Medium</p><pre><code><span class="kw">class</span> <span class="ty">DetectSquares</span>() {
+    <span class="kw">private</span> <span class="kw">val</span> points = <span class="ty">HashMap</span>&lt;<span class="ty">Int</span>, <span class="ty">HashMap</span>&lt;<span class="ty">Int</span>, <span class="ty">Int</span>&gt;&gt;()
+
+    <span class="kw">fun</span> add(point: <span class="ty">IntArray</span>) {
+        <span class="kw">val</span> x = point[<span class="nu">0</span>]
+        <span class="kw">val</span> y = point[<span class="nu">1</span>]
+
+        <span class="kw">var</span> row = points[x]
+        <span class="kw">if</span> (row == <span class="kw">null</span>) {
+            row = <span class="ty">HashMap</span>()
+            points[x] = row
+        }
+
+        <span class="kw">val</span> old = row[y] ?: <span class="nu">0</span>
+        row[y] = old + <span class="nu">1</span>
+    }
+
+    <span class="kw">fun</span> count(point: <span class="ty">IntArray</span>): <span class="ty">Int</span> {
+        <span class="kw">val</span> x = point[<span class="nu">0</span>]
+        <span class="kw">val</span> y = point[<span class="nu">1</span>]
+        <span class="kw">val</span> row = points[x]
+        <span class="kw">if</span> (row == <span class="kw">null</span>) {
+            <span class="kw">return</span> <span class="nu">0</span>
+        }
+
+        <span class="kw">var</span> answer = <span class="nu">0</span>
+
+        <span class="kw">for</span> ((py, times) <span class="kw">in</span> row) {
+            <span class="kw">val</span> side = y - py
+            <span class="kw">if</span> (side == <span class="nu">0</span>) {
+                <span class="kw">continue</span>
+            }
+
+            answer = answer + square(x + side, y, py, times)
+            answer = answer + square(x - side, y, py, times)
+        }
+
+        <span class="kw">return</span> answer
+    }
+
+    <span class="kw">private</span> <span class="kw">fun</span> square(otherX: <span class="ty">Int</span>, y: <span class="ty">Int</span>, py: <span class="ty">Int</span>, times: <span class="ty">Int</span>): <span class="ty">Int</span> {
+        <span class="kw">val</span> other = points[otherX]
+        <span class="kw">if</span> (other == <span class="kw">null</span>) {
+            <span class="kw">return</span> <span class="nu">0</span>
+        }
+        <span class="kw">val</span> cornerY = other[y] ?: <span class="nu">0</span>
+        <span class="kw">val</span> cornerPy = other[py] ?: <span class="nu">0</span>
+        <span class="kw">return</span> times * cornerY * cornerPy
+    }
+}
+</code></pre></article></section>
+</main>
+</body>
+</html>
