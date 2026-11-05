@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>三十分钟写完的 Agent 图</title>
+<style>
+  :root {
+    --ink: #1c1915;
+    --muted: #5c564c;
+    --line: #d9d0c3;
+    --paper: #f6f1e8;
+    --card: #fffdf8;
+    --green: #1e4a38;
+    --green-soft: #e5f0ea;
+    --halt: #8a3d32;
+    --halt-soft: #f8ebe6;
+    --code: #1c1915;
+    --code-ink: #f3ead8;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font: 17px/1.65 "Iowan Old Style", Palatino, "Palatino Linotype", "Songti SC", "Noto Serif SC", serif;
+  }
+  main { max-width: 860px; margin: 0 auto; padding: 48px 24px 96px; }
+  h1 { font-size: 40px; line-height: 1.15; font-weight: 600; letter-spacing: -0.03em; margin: 0 0 12px; }
+  h2 { font-size: 26px; line-height: 1.25; margin: 56px 0 12px; font-weight: 600; }
+  h3 { font-size: 18px; margin: 28px 0 8px; }
+  p { margin: 0 0 14px; }
+  .lede { font-size: 20px; color: var(--muted); }
+  a { color: var(--green); }
+  code, pre { font-family: "IBM Plex Mono", "Source Code Pro", ui-monospace, Menlo, Consolas, monospace; }
+  p code, li code, td code { font-size: 0.86em; background: #efe8dc; padding: 0 4px; border-radius: 3px; }
+  pre {
+    background: var(--code);
+    color: var(--code-ink);
+    padding: 18px 20px;
+    overflow: auto;
+    border-radius: 10px;
+    font-size: 13px;
+    line-height: 1.55;
+  }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0 20px; font-size: 16px; }
+  th, td { text-align: left; vertical-align: top; padding: 8px 10px; border-bottom: 1px solid var(--line); }
+  th { font-size: 13px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+  .clock { display: grid; grid-template-columns: 92px 1fr; gap: 8px 16px; margin: 8px 0 8px; }
+  .clock b { color: var(--green); font-variant-numeric: tabular-nums; }
+  .graph {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 22px 18px 18px;
+    margin: 18px 0;
+  }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: center; }
+  .node {
+    border: 1.5px solid var(--ink);
+    background: white;
+    border-radius: 8px;
+    padding: 8px 12px;
+    min-width: 108px;
+    text-align: center;
+    font-size: 15px;
+  }
+  .node small { display: block; color: var(--muted); font-size: 12px; }
+  .node.halt { border-color: var(--halt); background: var(--halt-soft); }
+  .node.go { border-color: var(--green); background: var(--green-soft); }
+  .arrow { color: var(--muted); font-size: 18px; }
+  .loops { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 14px; }
+  .loop {
+    border: 1px dashed var(--ink);
+    border-radius: 10px;
+    padding: 12px;
+    background: #fbf8f2;
+  }
+  .loop h3 { margin: 0 0 6px; font-size: 15px; }
+  .cycle { display: flex; align-items: center; justify-content: center; gap: 8px; }
+  .note { color: var(--muted); font-size: 15px; margin-top: 12px; }
+  .out { white-space: pre-wrap; }
+  ol.steps { padding-left: 1.2em; }
+  ol.steps li { margin: 0 0 8px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>三十分钟写完的 Agent 图</h1>
+  <p class="lede">面试官要的不是把 LangGraph 背下来。他要看见：一条消息怎么进图，图怎么循环，工具怎么被拦住，人点了批准之后怎么从同一份状态接着跑。</p>
+  <p>下面这一份 Kotlin 就是整张图。桩模型把路径走通，<code>model()</code> 换成真正的 <code>gateway.chat</code> 时，循环一个字都不用改。依赖只有 <code>kotlinx-coroutines-core</code>。源码在 <code>docs/interview-agent/AgentGraph.kt</code>。</p>
+
+  <h2>图</h2>
+  <div class="graph">
+    <div class="row">
+      <div class="node">用户消息</div>
+      <span class="arrow">→</span>
+      <div class="node go">route<small>条件边</small></div>
+      <span class="arrow">→</span>
+      <div class="node">planner<small>task = planner</small></div>
+      <span class="arrow">→</span>
+      <div class="node">fanOut<small>async / awaitAll</small></div>
+      <span class="arrow">→</span>
+      <div class="node go">join</div>
+    </div>
+    <div class="loops">
+      <div class="loop">
+        <h3>frontend 子代理</h3>
+        <div class="cycle">
+          <div class="node">model<small>task = agent</small></div>
+          <span class="arrow">⇄</span>
+          <div class="node">search<small>只读，直接执行</small></div>
+        </div>
+      </div>
+      <div class="loop">
+        <h3>backend 子代理</h3>
+        <div class="cycle">
+          <div class="node">model<small>task = agent</small></div>
+          <span class="arrow">⇄</span>
+          <div class="node halt">edit_file<small>写入，先停</small></div>
+        </div>
+      </div>
+    </div>
+    <p class="note">写入工具不执行。检查点记下 <code>waiting</code> 和 <code>waitingRole</code>，函数返回。人批准之后，<code>resume</code> 只唤醒 backend 那一份子状态，再汇合。</p>
+  </div>
+
+  <h2>三十分钟怎么分配</h2>
+  <div class="clock">
+    <b>0–8</b><span>写 <code>State</code>、<code>Tool</code>、<code>Memory</code>。口头说明：新增工具是往 map 里加一行，循环里没有按名字写的 if。</span>
+    <b>8–18</b><span>写 <code>agentLoop</code>。这是环：有 <code>tool_calls</code> 就执行再回到模型，没有就返回文字。</span>
+    <b>18–25</b><span>写入工具把 <code>waiting</code> 设上并 return。<code>resume</code> 把工具结果贴回消息，再调用同一个 <code>agentLoop</code>。</span>
+    <b>25–30</b><span>如果还被问到多代理：补 <code>route</code>、<code>planNode</code>、<code>fanOut</code>。并行就是 <code>async</code> 加 <code>awaitAll</code>。</span>
+  </div>
+  <p>前 25 分钟已经覆盖单代理、工具、检查点、打断和恢复。并行是加分，不是开场。</p>
+
+  <h2>一条消息走完全程</h2>
+  <p>用户说「登录页和接口一起改」。桩模型不读这句话的内容，它按角色决定下一步，这样你可以在白板上逐行指。真实输出是：</p>
+  <pre class="out">frontend · search: 命中：登录页在 LoginPage.kt
+frontend: 登录页按检索结果改文案
+等待批准 edit_file
+停住 edit_file / backend
+backend: 登录接口已修改
+最终 frontend: 登录页按检索结果改文案 | backend: 登录接口已修改</pre>
+  <p><code>main</code> 里 <code>resume</code> 被调用了两次。第二次父状态的 <code>waiting</code> 已经空了，直接返回，所以没有第二行「已写入」，也没有第二个「最终」。<code>edit_file</code> 只执行了一次。</p>
+  <ol class="steps">
+    <li><code>route</code> 看见 <code>planned == false</code>，去 planner。计划写成 frontend、backend 两步。</li>
+    <li><code>fanOut</code> 为每个角色起一个子状态，thread id 是 <code>t1:frontend</code> 和 <code>t1:backend</code>。两个 <code>agentLoop</code> 同时跑。</li>
+    <li>frontend 的模型要 <code>search</code>。只读，执行，结果写进消息，环再转一圈，模型给出文字。</li>
+    <li>backend 的模型要 <code>edit_file</code>。<code>write == true</code>，不调用工具。子状态和父状态都记下这次 <code>Call</code>，图停住。</li>
+    <li>谁先做完谁先 <code>send</code>。前端的两行可以出现在「等待批准」前面或后面，由调度决定。汇合一定在批准之后。</li>
+    <li><code>resume(approved = true)</code> 加载 <code>t1:backend</code>，用 <code>call.id</code> 执行一次，把「已写入 LoginApi.kt」当作 tool 消息，再进 <code>agentLoop</code>。模型看见工具结果，返回「登录接口已修改」。</li>
+    <li>父状态 <code>waiting = null</code>，<code>results</code> 补上 backend，发出最终一行。</li>
+  </ol>
+
+  <h2>词落在哪</h2>
+  <table>
+    <tr><th>面试官说的词</th><th>你指给他看</th></tr>
+    <tr><td>条件边</td><td><code>route</code>。返回 halt、planner、subagents、join。</td></tr>
+    <tr><td>节点之间的环</td><td><code>agentLoop</code> 的 <code>while</code>。工具结果写回消息后，下一次循环再叫模型。</td></tr>
+    <tr><td>tools 节点</td><td><code>for (call in turn.calls)</code>。按名字查 <code>tools</code>，不按名字写分支。</td></tr>
+    <tr><td>checkpointer</td><td><code>Memory.save</code>。键是 <code>threadId</code>。口头补一句：生产换成 Postgres 的一行。</td></tr>
+    <tr><td>interrupt</td><td>写入工具处 <code>return s.copy(waiting = call)</code>。函数返回，连接可以结束。</td></tr>
+    <tr><td>resume</td><td><code>resume</code>。同一个 thread id 把子状态加载回来，从 <code>agentLoop</code> 继续。</td></tr>
+    <tr><td>subagents 并行</td><td><code>fanOut</code> 里的 <code>async</code> / <code>awaitAll</code>。每个子代理一份自己的 <code>State</code>。</td></tr>
+    <tr><td>先完成的先推给用户</td><td><code>out.send</code> 写在那个子代理 <code>return</code> 之前。<code>awaitAll</code> 只挡住最终汇合。</td></tr>
+    <tr><td>模型档位</td><td><code>model(task, ...)</code> 的 <code>task</code>。planner 和 agent 是两次调用，网关按 task 选模型。</td></tr>
+    <tr><td>幂等</td><td>父状态的 <code>waiting</code> 只能被清一次。<code>exec</code> 再用 <code>doneCalls</code> 挡住同一个 <code>call.id</code>。</td></tr>
+  </table>
+
+  <h2>环和打断</h2>
+  <p>单代理的全部机制都在 <code>agentLoop</code>。每一圈先存检查点。已经在等人，就停。模型没有工具调用，把文字交给用户并返回。模型要写文件，只记下 <code>Call</code>，不执行。只读工具执行后把结果追加到消息，<code>while</code> 回到顶部。</p>
+  <p>这就是 LangGraph 里 agent 节点和 tools 节点之间的那条回边。条件是「还有没有 <code>tool_calls</code>」，写在这个 if 里，不需要另外一个框架。</p>
+
+  <h2>并行和汇合</h2>
+  <p><code>route</code> 决定外层下一站。还没规划就去 planner。计划里还有没完成的角色，就去 <code>fanOut</code>。有人在等批准，外层直接停，不会把已经跑完的 frontend 再跑一遍。<code>fanOut</code> 也会跳过 <code>results</code> 里已经有的角色。</p>
+  <p>子代理的检查点键是 <code>t1:backend</code> 这种。父状态只保存计划、已完成的结果、以及正在等的那一次调用。两边不共用一个可变对象。</p>
+
+  <h2>批准之后</h2>
+  <p><code>resume</code> 不重新规划。它加载暂停的那个角色，执行或拒绝，再进入同一个环。模型在下一次调用里看见 tool 消息。拒绝时桩模型返回「未修改接口」。批准后 <code>results</code> 补齐，发出最终行。</p>
+  <p>用户在还没批准时又发来新消息，<code>invoke</code> 看见 <code>waiting != null</code> 就原样返回。不开始第二份计划。</p>
+
+  <h2>如果面试官坚持用 LangGraph 这个库</h2>
+  <p>把同样的四个名字登记成节点。子代理内部的环可以继续写在节点函数里，也可以再拆成 agent 和 tools 两个节点，用一条固定边从 tools 回到 agent。检查点交给 <code>compile(checkpointer = ...)</code>。写入工具处的 <code>return waiting</code>，换成库里的 <code>interrupt(call)</code>。批准时用同一个 thread id 和 <code>Command(resume = true)</code> 再 <code>invoke</code> 一次。并行在 Python 里是 <code>Send</code>，在这里就是 <code>async</code>。</p>
+
+  <h2>整份代码</h2>
+  <pre>import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import java.util.concurrent.ConcurrentHashMap
+
+/**
+ * 三十分钟白板版。
+ *
+ * 条件边是 [route]。环是 [agentLoop] 的 while。
+ * 工具节点是 for (call in turn.calls)。检查点是 [Memory]。
+ * 人工打断是 State.waiting。并行子代理是 [fanOut] 里的 async。
+ * 模型网关的档位是 [model] 的 task 参数。桩模型只负责把这条路径走通。
+ *
+ * 真接模型时把 [model] 换成 HTTP。循环不用改。
+ * 依赖只有 kotlinx-coroutines-core。不引用 LangGraph。
+ */
+
+data class Msg(val role: String, val content: String)
+data class Call(val id: String, val name: String, val args: Map&lt;String, String&gt;)
+data class Task(val role: String, val brief: String)
+
+data class State(
+    val threadId: String,
+    val messages: List&lt;Msg&gt; = emptyList(),
+    val plan: List&lt;Task&gt; = emptyList(),
+    val planned: Boolean = false,
+    val results: List&lt;String&gt; = emptyList(),
+    val waiting: Call? = null,
+    val waitingRole: String? = null,
+    val doneCalls: Set&lt;String&gt; = emptySet(),
+)
+
+class Tool(
+    val name: String,
+    val write: Boolean,
+    val run: (Map&lt;String, String&gt;) -&gt; String,
+)
+
+val tools: Map&lt;String, Tool&gt; = mapOf(
+    &quot;search&quot; to Tool(&quot;search&quot;, write = false) { &quot;命中：登录页在 LoginPage.kt&quot; },
+    &quot;edit_file&quot; to Tool(&quot;edit_file&quot;, write = true) { &quot;已写入 ${it[&quot;path&quot;]}&quot; },
+)
+
+class Memory {
+    private val rows = ConcurrentHashMap&lt;String, State&gt;()
+    fun save(s: State) { rows[s.threadId] = s }
+    fun load(id: String): State = rows[id] ?: State(id)
+}
+
+data class Turn(
+    val text: String? = null,
+    val calls: List&lt;Call&gt; = emptyList(),
+    val plan: List&lt;Task&gt; = emptyList(),
+)
+
+fun model(task: String, role: String, messages: List&lt;Msg&gt;): Turn {
+    val last = messages.lastOrNull()?.content
+    val sawTool = messages.any { it.role == &quot;tool&quot; }
+    if (task == &quot;planner&quot;) {
+        return Turn(plan = listOf(Task(&quot;frontend&quot;, &quot;改登录页&quot;), Task(&quot;backend&quot;, &quot;改登录接口&quot;)))
+    }
+    return when (role) {
+        &quot;frontend&quot; -&gt;
+            if (!sawTool) Turn(calls = listOf(Call(&quot;f1&quot;, &quot;search&quot;, mapOf(&quot;q&quot; to &quot;登录页&quot;))))
+            else Turn(text = &quot;登录页按检索结果改文案&quot;)
+        &quot;backend&quot; -&gt; when {
+            last == &quot;用户拒绝&quot; -&gt; Turn(text = &quot;未修改接口&quot;)
+            !sawTool -&gt; Turn(calls = listOf(Call(&quot;b1&quot;, &quot;edit_file&quot;, mapOf(&quot;path&quot; to &quot;LoginApi.kt&quot;))))
+            else -&gt; Turn(text = &quot;登录接口已修改&quot;)
+        }
+        else -&gt; Turn(text = &quot;&quot;)
+    }
+}
+
+fun route(s: State): String = when {
+    s.waiting != null -&gt; &quot;halt&quot;
+    !s.planned -&gt; &quot;planner&quot;
+    s.results.size &lt; s.plan.size -&gt; &quot;subagents&quot;
+    else -&gt; &quot;join&quot;
+}
+
+fun exec(call: Call, done: Set&lt;String&gt;): Pair&lt;String, Set&lt;String&gt;&gt; {
+    if (call.id in done) return &quot;已执行 ${call.id}&quot; to done
+    return tools.getValue(call.name).run(call.args) to (done + call.id)
+}
+
+suspend fun agentLoop(s0: State, role: String, mem: Memory, out: Channel&lt;String&gt;): State {
+    var s = s0
+    while (true) {
+        mem.save(s)
+        if (s.waiting != null) return s
+        val turn = model(&quot;agent&quot;, role, s.messages)
+        s = s.copy(messages = s.messages + Msg(&quot;assistant&quot;, turn.text.orEmpty()))
+        if (turn.calls.isEmpty()) {
+            out.send(&quot;$role: ${turn.text.orEmpty()}&quot;)
+            mem.save(s)
+            return s
+        }
+        for (call in turn.calls) {
+            if (tools.getValue(call.name).write) {
+                out.send(&quot;等待批准 ${call.name}&quot;)
+                return s.copy(waiting = call).also { mem.save(it) }
+            }
+            val (text, done) = exec(call, s.doneCalls)
+            out.send(&quot;$role · ${call.name}: $text&quot;)
+            s = s.copy(doneCalls = done, messages = s.messages + Msg(&quot;tool&quot;, text))
+        }
+    }
+}
+
+fun planNode(s: State): State =
+    s.copy(planned = true, plan = model(&quot;planner&quot;, &quot;planner&quot;, s.messages).plan)
+
+suspend fun fanOut(s: State, mem: Memory, out: Channel&lt;String&gt;): State = coroutineScope {
+    val pending = s.plan.filter { task -&gt; s.results.none { it.startsWith(task.role) } }
+    val pieces = pending.map { task -&gt;
+        async {
+            val child = agentLoop(
+                State(&quot;${s.threadId}:${task.role}&quot;, messages = listOf(Msg(&quot;user&quot;, task.brief))),
+                task.role,
+                mem,
+                out,
+            )
+            task.role to child
+        }
+    }.awaitAll()
+    val paused = pieces.firstOrNull { it.second.waiting != null }
+    val finished = pieces.filter { it.second.waiting == null }
+    s.copy(
+        results = s.results + finished.map { (role, child) -&gt;
+            &quot;$role: ${child.messages.last().content}&quot;
+        },
+        waiting = paused?.second?.waiting,
+        waitingRole = paused?.first,
+    )
+}
+
+suspend fun invoke(threadId: String, userText: String, mem: Memory, out: Channel&lt;String&gt;): State {
+    val prev = mem.load(threadId)
+    if (prev.waiting != null) return prev
+    var s = prev.copy(
+        messages = prev.messages + Msg(&quot;user&quot;, userText),
+        planned = false,
+        plan = emptyList(),
+        results = emptyList(),
+        waiting = null,
+        waitingRole = null,
+    )
+    while (true) {
+        mem.save(s)
+        s = when (route(s)) {
+            &quot;halt&quot; -&gt; return s
+            &quot;planner&quot; -&gt; planNode(s)
+            &quot;subagents&quot; -&gt; fanOut(s, mem, out)
+            else -&gt; return s.also { out.send(&quot;最终 &quot; + it.results.joinToString(&quot; | &quot;)) }
+        }
+    }
+}
+
+suspend fun resume(threadId: String, approved: Boolean, mem: Memory, out: Channel&lt;String&gt;): State {
+    val parent = mem.load(threadId)
+    val call = parent.waiting ?: return parent
+    val role = parent.waitingRole ?: return parent
+    val child0 = mem.load(&quot;$threadId:$role&quot;)
+    val (text, done) = if (approved) exec(call, child0.doneCalls) else &quot;用户拒绝&quot; to child0.doneCalls
+    val child = agentLoop(
+        child0.copy(waiting = null, doneCalls = done, messages = child0.messages + Msg(&quot;tool&quot;, text)),
+        role,
+        mem,
+        out,
+    )
+    val merged = parent.copy(
+        waiting = null,
+        waitingRole = null,
+        results = parent.results + &quot;$role: ${child.messages.last().content}&quot;,
+    )
+    mem.save(merged)
+    out.send(&quot;最终 &quot; + merged.results.joinToString(&quot; | &quot;))
+    return merged
+}
+
+fun main() = runBlocking {
+    val mem = Memory()
+    val out = Channel&lt;String&gt;(Channel.UNLIMITED)
+    val printer = launch { for (line in out) println(line) }
+    val paused = invoke(&quot;t1&quot;, &quot;登录页和接口一起改&quot;, mem, out)
+    println(&quot;停住 ${paused.waiting?.name} / ${paused.waitingRole}&quot;)
+    resume(&quot;t1&quot;, approved = true, mem, out)
+    resume(&quot;t1&quot;, approved = true, mem, out)
+    out.close()
+    printer.join()
+}
+</pre>
+</main>
+</body>
+</html>
