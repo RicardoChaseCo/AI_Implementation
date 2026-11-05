@@ -5,16 +5,57 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#ffffff">
 <title>热题</title>
+<script>
+(function () {
+  try {
+    var saved = localStorage.getItem("hot240-theme");
+    var dark = saved ? saved === "dark" : window.matchMedia("(prefers-color-scheme: dark)").matches;
+    if (dark) document.documentElement.setAttribute("data-theme", "dark");
+    var meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute("content", dark ? "#0d1117" : "#ffffff");
+  } catch (e) {}
+})();
+</script>
 <style>
 
 :root {
+  color-scheme: light;
   --bg: #ffffff;
   --ink: #1f2328;
   --muted: #656d76;
   --line: #d8dee4;
   --soft: #f6f8fa;
+  --chip: #ffffff;
   --accent: #0969da;
+  --code: #24292f;
+  --kw: #cf222e;
+  --ty: #953800;
+  --st: #0a3069;
+  --cm: #6e7781;
+  --nu: #0550ae;
+  --arrow: #afb8c1;
+  --on: #ffffff;
+  --checked: #8c959f;
   --nav: 268px;
+}
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0d1117;
+  --ink: #e6edf3;
+  --muted: #8b949e;
+  --line: #30363d;
+  --soft: #161b22;
+  --chip: #21262d;
+  --accent: #4493f8;
+  --code: #e6edf3;
+  --kw: #ff7b72;
+  --ty: #ffa657;
+  --st: #a5d6ff;
+  --cm: #8b949e;
+  --nu: #79c0ff;
+  --arrow: #6e7681;
+  --on: #ffffff;
+  --checked: #6e7681;
 }
 * { box-sizing: border-box; }
 html {
@@ -41,13 +82,33 @@ a { color: inherit; text-decoration: none; }
   overflow: auto;
   padding: 28px 18px 40px;
   border-right: 1px solid var(--line);
-  background: #fff;
+  background: var(--bg);
   -webkit-overflow-scrolling: touch;
+}
+.brandrow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
 }
 .brand {
   margin: 0 0 8px;
   font-size: 13px;
   font-weight: 600;
+}
+.theme {
+  flex: none;
+  min-height: 32px;
+  margin-top: 2px;
+  padding: 4px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--chip);
+  color: var(--ink);
+  font: inherit;
+  font-size: 13px;
+  line-height: 1.2;
+  cursor: pointer;
 }
 .brand span {
   display: block;
@@ -126,7 +187,7 @@ h3:has(input:checked) {
   color: var(--muted);
 }
 .nav li:has(input:checked) .num {
-  color: #8c959f;
+  color: var(--checked);
 }
 .nav li a:hover { color: var(--accent); }
 .num {
@@ -170,14 +231,14 @@ pre {
 }
 code {
   font: 13.5px/1.75 ui-monospace, "SFMono-Regular", "JetBrains Mono", "PingFang SC", Consolas, monospace;
-  color: #24292f;
+  color: var(--code);
   white-space: pre;
 }
-.kw { color: #cf222e; }
-.ty { color: #953800; }
-.st { color: #0a3069; }
-.cm { color: #6e7781; }
-.nu { color: #0550ae; }
+.kw { color: var(--kw); }
+.ty { color: var(--ty); }
+.st { color: var(--st); }
+.cm { color: var(--cm); }
+.nu { color: var(--nu); }
 .bond {
   margin-top: 10px;
   padding: 12px;
@@ -201,7 +262,7 @@ code {
   padding: 4px 8px;
   border: 1px solid var(--line);
   border-radius: 6px;
-  background: #fff;
+  background: var(--chip);
   font-size: 13px;
   line-height: 1.4;
 }
@@ -213,7 +274,7 @@ code {
   width: 16px;
   height: 1px;
   margin: 0 4px;
-  background: #afb8c1;
+  background: var(--arrow);
   position: relative;
   flex: none;
 }
@@ -224,7 +285,7 @@ code {
   top: -3px;
   border-top: 4px solid transparent;
   border-bottom: 4px solid transparent;
-  border-left: 5px solid #afb8c1;
+  border-left: 5px solid var(--arrow);
 }
 .delta { margin: 0; font-size: 14px; line-height: 1.55; }
 .chain {
@@ -251,12 +312,12 @@ code {
 .node.on {
   background: var(--accent);
   border-color: var(--accent);
-  color: #fff;
+  color: var(--on);
 }
 .lnk {
   width: 16px;
   height: 1px;
-  background: #afb8c1;
+  background: var(--arrow);
   flex: none;
 }
 .cat + .cat {
@@ -275,11 +336,16 @@ code {
     overflow: visible;
     padding: 0;
     border-right: 0;
-    background: #fff;
+    background: var(--bg);
+  }
+  .theme {
+    min-height: 40px;
+    padding: 8px 14px;
+    font-size: 15px;
   }
   .bar {
     position: static;
-    background: #fff;
+    background: var(--bg);
     border-bottom: 1px solid var(--line);
     padding: max(10px, env(safe-area-inset-top)) 16px 8px;
   }
@@ -318,7 +384,7 @@ code {
     -webkit-overflow-scrolling: touch;
     padding: 4px 0 12px;
     border-bottom: 1px solid var(--line);
-    background: #fff;
+    background: var(--bg);
   }
   .nav li { align-items: center; }
   .nav li a {
@@ -367,7 +433,10 @@ code {
 <body>
 <aside class="nav">
   <div class="bar">
-    <p class="brand">热题<span id="progress">0 / 268</span></p>
+    <div class="brandrow">
+      <p class="brand">热题<span id="progress">0 / 268</span></p>
+      <button type="button" class="theme" id="theme" aria-pressed="false">深色</button>
+    </div>
     <div class="jump"><a href="#c-哈希">哈希</a><a href="#c-双指针">双指针</a><a href="#c-滑动窗口">滑动窗口</a><a href="#c-二分">二分</a><a href="#c-链表">链表</a><a href="#c-栈">栈</a><a href="#c-堆">堆</a><a href="#c-区间">区间</a><a href="#c-贪心">贪心</a><a href="#c-数组">数组</a><a href="#c-字符串">字符串</a><a href="#c-设计">设计</a><a href="#c-前缀树">前缀树</a><a href="#c-树">树</a><a href="#c-回溯">回溯</a><a href="#c-图">图</a><a href="#c-动态规划">动态规划</a><a href="#c-模拟">模拟</a><a href="#c-手撕">手撕</a></div>
     <input class="toc-toggle" id="toc-toggle" type="checkbox">
     <label class="toc-btn" for="toc-toggle">全部 268 题 <span class="mark"></span></label>
@@ -8150,6 +8219,38 @@ document.querySelectorAll(".toc a").forEach(function (link) {
     });
   });
   paint();
+})();
+(function () {
+  var KEY = "hot240-theme";
+  function apply(dark) {
+    if (dark) document.documentElement.setAttribute("data-theme", "dark");
+    else document.documentElement.removeAttribute("data-theme");
+    var meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute("content", dark ? "#0d1117" : "#ffffff");
+    var btn = document.getElementById("theme");
+    if (!btn) return;
+    btn.textContent = dark ? "浅色" : "深色";
+    btn.setAttribute("aria-pressed", dark ? "true" : "false");
+    btn.setAttribute("aria-label", dark ? "切换浅色" : "切换深色");
+  }
+  apply(document.documentElement.getAttribute("data-theme") === "dark");
+  var btn = document.getElementById("theme");
+  if (btn) {
+    btn.addEventListener("click", function () {
+      var dark = document.documentElement.getAttribute("data-theme") !== "dark";
+      try { localStorage.setItem(KEY, dark ? "dark" : "light"); } catch (e) {}
+      apply(dark);
+    });
+  }
+  var media = window.matchMedia("(prefers-color-scheme: dark)");
+  if (media.addEventListener) {
+    media.addEventListener("change", function () {
+      var saved = null;
+      try { saved = localStorage.getItem(KEY); } catch (e) {}
+      if (saved) return;
+      apply(media.matches);
+    });
+  }
 })();
 </script>
 </body>
