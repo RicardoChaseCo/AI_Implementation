@@ -94,6 +94,11 @@ a { color: inherit; text-decoration: none; }
   justify-content: space-between;
   gap: 8px;
 }
+.tools {
+  display: flex;
+  flex: none;
+  gap: 6px;
+}
 .brand {
   margin: 0 0 8px;
   font-size: 13px;
@@ -481,7 +486,10 @@ code {
     </div>
     <div class="brandrow">
       <p class="brand"><span id="brand-name">全部</span><span id="progress">0 / 268</span></p>
-      <button type="button" class="theme" id="theme" aria-pressed="false">深色</button>
+      <div class="tools">
+        <button type="button" class="theme" id="clear-done" aria-label="清空当前这一页的勾选">清空</button>
+        <button type="button" class="theme" id="theme" aria-pressed="false">深色</button>
+      </div>
     </div>
     <div class="jump"><a href="#c-哈希" data-set="hot">哈希</a><a href="#c-双指针" data-set="hot">双指针</a><a href="#c-滑动窗口" data-set="hot">滑动窗口</a><a href="#c-二分" data-set="hot">二分</a><a href="#c-链表" data-set="hot">链表</a><a href="#c-栈" data-set="hot">栈</a><a href="#c-堆" data-set="hot">堆</a><a href="#c-区间" data-set="hot">区间</a><a href="#c-贪心" data-set="hot">贪心</a><a href="#c-数组" data-set="hot">数组</a><a href="#c-字符串">字符串</a><a href="#c-设计" data-set="hot">设计</a><a href="#c-前缀树" data-set="hot">前缀树</a><a href="#c-树" data-set="hot">树</a><a href="#c-回溯" data-set="hot">回溯</a><a href="#c-图" data-set="hot">图</a><a href="#c-动态规划" data-set="hot">动态规划</a><a href="#c-模拟">模拟</a><a href="#c-手撕">手撕</a></div>
     <input class="toc-toggle" id="toc-toggle" type="checkbox">
@@ -8445,6 +8453,13 @@ document.querySelectorAll(".toc a").forEach(function (link) {
   var completeBtn = document.getElementById("mode-complete");
   if (simpleBtn) simpleBtn.addEventListener("click", function () { setMode("simple"); });
   if (completeBtn) completeBtn.addEventListener("click", function () { setMode("complete"); });
+  var clearBtn = document.getElementById("clear-done");
+  if (clearBtn) {
+    clearBtn.addEventListener("click", function () {
+      try { localStorage.removeItem(KEYS[modeName()]); } catch (e) {}
+      paint();
+    });
+  }
   window.addEventListener("resize", fitBar);
   paint();
   fitBar();
