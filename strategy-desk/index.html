@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>策略评测台 · 业界回放与本地实现</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<style>
+  :root {
+    --ink: #1a1814;
+    --ink-soft: #5c564c;
+    --paper: #efe6d4;
+    --paper-2: #f7f1e4;
+    --card: #fbf7ef;
+    --line: #d9d0bf;
+    --forest: #1b3f32;
+    --forest-2: #2f6a52;
+    --moss: #e5f0e8;
+    --rust: #8d3b2e;
+    --rust-bg: #f8ebe6;
+    --gold: #8a6a32;
+    --shadow: 0 1px 0 rgba(26, 24, 20, 0.06);
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background:
+      radial-gradient(1200px 400px at 10% -10%, rgba(47, 106, 82, 0.08), transparent 50%),
+      var(--paper);
+    color: var(--ink);
+    font-family: "WenQuanYi Micro Hei", "Droid Sans Fallback", "Noto Sans CJK SC", sans-serif;
+    font-size: 16.5px;
+    line-height: 1.7;
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 28px 22px 80px; }
+  header.mast {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 24px;
+    align-items: end;
+    border-bottom: 1px solid var(--ink);
+    padding-bottom: 22px;
+    margin-bottom: 22px;
+  }
+  .kicker {
+    font-family: "Noto Sans Mono", ui-monospace, monospace;
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--forest);
+    margin: 0 0 8px;
+  }
+  h1 { font-size: 40px; line-height: 1.15; font-weight: 700; margin: 0 0 10px; letter-spacing: -0.03em; }
+  .lede { margin: 0; max-width: 46rem; color: var(--ink-soft); font-size: 17px; }
+  .mast-meta {
+    font-family: "Noto Sans Mono", ui-monospace, monospace;
+    font-size: 12px;
+    text-align: right;
+    color: var(--ink-soft);
+    line-height: 1.6;
+  }
+  nav.toc {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0 0 28px;
+  }
+  nav.toc a {
+    color: var(--ink);
+    text-decoration: none;
+    border: 1px solid var(--line);
+    background: var(--card);
+    padding: 4px 10px;
+    font-size: 13px;
+  }
+  nav.toc a:hover { border-color: var(--forest); color: var(--forest); }
+  section { margin: 34px 0 10px; }
+  h2 {
+    font-size: 26px;
+    margin: 0 0 8px;
+    letter-spacing: -0.02em;
+  }
+  h2 .num {
+    font-family: "Noto Sans Mono", ui-monospace, monospace;
+    color: var(--gold);
+    font-size: 14px;
+    margin-right: 8px;
+  }
+  h3 { font-size: 18px; margin: 22px 0 8px; }
+  p { margin: 0 0 12px; }
+  .note {
+    background: var(--card);
+    border-left: 3px solid var(--forest);
+    padding: 12px 14px;
+    margin: 14px 0;
+    box-shadow: var(--shadow);
+  }
+  .warn {
+    background: var(--rust-bg);
+    border-left: 3px solid var(--rust);
+    padding: 12px 14px;
+    margin: 14px 0;
+  }
+  .diagram {
+    background: var(--card);
+    border: 1px solid var(--line);
+    padding: 12px 8px 4px;
+    margin: 14px 0 8px;
+    overflow-x: auto;
+  }
+  .caption {
+    font-size: 13px;
+    color: var(--ink-soft);
+    margin: 0 0 16px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--card);
+    font-size: 14.5px;
+  }
+  th, td { border-bottom: 1px solid var(--line); text-align: left; padding: 9px 10px; vertical-align: top; }
+  th { font-size: 12px; letter-spacing: 0.04em; color: var(--ink-soft); font-weight: 600; background: #f3ecdf; }
+  .terms { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+  .term {
+    background: var(--card);
+    border: 1px solid var(--line);
+    padding: 12px 12px 10px;
+  }
+  .term b { display: block; margin-bottom: 4px; }
+  .term span { color: var(--ink-soft); font-size: 14px; }
+  .proto {
+    background: var(--forest);
+    padding: 14px;
+    margin-top: 8px;
+  }
+  .chrome {
+    background: var(--paper-2);
+    min-height: 460px;
+  }
+  .chrome-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    background: #f3ecdf;
+    border-bottom: 1px solid var(--line);
+  }
+  .dots { display: flex; gap: 6px; }
+  .dots i { width: 9px; height: 9px; border-radius: 50%; display: block; background: #c8bfae; }
+  .dots i:first-child { background: #b4574a; }
+  .chrome-title { font-size: 13px; color: var(--ink-soft); }
+  .modes { display: flex; gap: 6px; }
+  .modes button, .run, .ghost {
+    font-family: inherit;
+    font-size: 13px;
+    border: 1px solid var(--ink);
+    background: transparent;
+    padding: 5px 10px;
+    cursor: pointer;
+    color: var(--ink);
+  }
+  .modes button.on, .run { background: var(--forest); color: #f7f1e4; border-color: var(--forest); }
+  .sheet { padding: 14px; }
+  .sample-line {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: 13px;
+    color: var(--ink-soft);
+    margin-bottom: 10px;
+  }
+  .grid {
+    width: 100%;
+    background: white;
+  }
+  .grid input {
+    width: 72px;
+    font: inherit;
+    font-size: 14px;
+    border: 1px solid var(--line);
+    padding: 4px 6px;
+    background: #fffdf8;
+  }
+  .grid tr.hot td { background: var(--rust-bg); }
+  .grid tr.ok td { background: var(--moss); }
+  .delta-up { color: var(--rust); font-variant-numeric: tabular-nums; }
+  .delta-down { color: var(--forest); font-variant-numeric: tabular-nums; }
+  .actions { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; gap: 12px; }
+  .result {
+    margin-top: 12px;
+    display: none;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 10px;
+  }
+  .result.show { display: grid; }
+  .panel {
+    background: white;
+    border: 1px solid var(--line);
+    padding: 12px;
+  }
+  .panel h4 { margin: 0 0 8px; font-size: 15px; }
+  .flag {
+    border-top: 1px solid var(--line);
+    padding-top: 8px;
+    margin-top: 8px;
+    font-size: 14px;
+  }
+  .flag b { color: var(--rust); }
+  .audit {
+    font-family: "Noto Sans Mono", ui-monospace, monospace;
+    font-size: 12px;
+    line-height: 1.55;
+    color: var(--ink-soft);
+    white-space: pre-wrap;
+  }
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    padding: 12px 14px;
+  }
+  .card h3 { margin-top: 0; }
+  ul.clean { margin: 8px 0 0; padding-left: 18px; }
+  ul.clean li { margin: 4px 0; }
+  .say {
+    display: grid;
+    gap: 8px;
+  }
+  .say div {
+    background: var(--card);
+    border: 1px solid var(--line);
+    padding: 10px 12px;
+  }
+  footer {
+    margin-top: 40px;
+    padding-top: 12px;
+    border-top: 1px solid var(--line);
+    color: var(--ink-soft);
+    font-size: 13px;
+  }
+  @media (max-width: 800px) {
+    header.mast, .terms, .cols, .result.show { grid-template-columns: 1fr; }
+    .mast-meta { text-align: left; }
+    h1 { font-size: 32px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="mast">
+    <div>
+      <p class="kicker">Credit strategy replay · local desk</p>
+      <h1>策略评测台</h1>
+      <p class="lede">发卡机构改一条通过策略，正式做法是在冻结的历史申请上重跑，和正在生产的冠军策略逐笔比差异，再由人签字。国内这套工具是这条链路的缩小版：一张客群格子表、一份整理过的小样本、一次模型第二遍检查，以及一份审计。</p>
+    </div>
+    <div class="mast-meta">
+      讲解稿<br />
+      数字和制度名都是示例<br />
+      不是生产统计
+    </div>
+  </header>
+
+  <nav class="toc">
+    <a href="#industry">01 业界怎么做</a>
+    <a href="#slice">02 本地台占哪一段</a>
+    <a href="#proto">03 产品原型</a>
+    <a href="#arch">04 技术架构</a>
+    <a href="#run">05 一次跑批</a>
+    <a href="#model">06 模型与检索</a>
+    <a href="#clock">07 三周到三天</a>
+  </nav>
+
+  <section id="industry">
+    <h2><span class="num">01</span>业界的策略评测怎么走</h2>
+    <p>生产决策引擎里，分析师改的不是「这个格子通过率写成 41%」。格子里放的是规则参数：分数线、负债率上限、额度上限、拒绝原因。通过率是拿一批已经发生过的申请重算出来的结果。</p>
+    <div class="diagram">
+      <pre class="mermaid">
+flowchart TD
+  A[分析师修改决策表] --> B[参数: 分数线、额度、拒绝原因]
+  B --> C[取申请当时已经知道的特征]
+  C --> D[冠军策略和候选策略各跑一遍]
+  D --> E[逐笔比较: 通过率、换入、换出]
+  E --> F[第二人复核并留下审计]
+  F --> G[生产上小流量挑战者]
+  G --> H[等表现窗口看坏账]
+  H --> I[再决定是否全量]
+      </pre>
+    </div>
+    <p class="caption">正式上线停在表现窗口之后。回放当天看不到换进来的人以后会不会逾期。</p>
+    <div class="terms">
+      <div class="term"><b>冠军 / 挑战者</b><span>冠军是现在生产上的策略。挑战者是准备替换它的版本。回放阶段两套都只在历史数据上跑，客人无感知。</span></div>
+      <div class="term"><b>时点冻结</b><span>重跑去年三月的一笔申请，只能用当时已经拿到的征信、收入和分数。之后的还款不能当成当时的输入。</span></div>
+      <div class="term"><b>换入 / 换出</b><span>换入是冠军拒绝、候选通过。换出相反。通过率没变，也可能是换入一百人、换出一百人，人群已经不同。</span></div>
+      <div class="term"><b>表现窗口</b><span>坏账通常要等六到十二个月。回放可以比较通过了谁，不能证明坏账下降。所以回放通过不等于可以全量。</span></div>
+    </div>
+    <div class="note">第二双眼睛可以是另一位分析师，也可以是一个模型先把可疑格子标出来。模型不能代替签字。不利行动原因、最终通过还是拒绝，都以人确认的那一版策略为准。</div>
+  </section>
+
+  <section id="slice">
+    <h2><span class="num">02</span>国内这套工具实际做了哪一段</h2>
+    <p>美国有正式回放平台。国内分析师不能把策略贴进外面的聊天工具，也排不上反复跑全量。软件做的是一个本地评测台，用来在小样本上把一版改动看清楚，再交回正式流程。</p>
+    <table>
+      <thead>
+        <tr><th>环节</th><th>发卡机构的正式平台</th><th>你们的本地评测台</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>策略怎么表达</td><td>决策表里的分数线、额度和原因码</td><td>客群档位 × 格子。分析师直接改各档通过率或规则场景</td></tr>
+        <tr><td>数据</td><td>全量申请日志，特征按申请时点冻结</td><td>一份整理过的小样本，同样只使用申请时点已经知道的字段</td></tr>
+        <tr><td>比较</td><td>按申请号逐笔算换入、换出</td><td>几个版本并排跑，先汇总到客群格子的差异</td></tr>
+        <tr><td>复核</td><td>人签字，变更单留痕</td><td>模型按固定制度标出可疑格子，标记和文档清单入库，人决定改不改</td></tr>
+        <tr><td>上线</td><td>小流量挑战者，再等表现窗口</td><td>不做。本地台不发布到生产决策引擎</td></tr>
+      </tbody>
+    </table>
+    <div class="warn">格子上的通过率差，不要讲成逐笔换入人数。只把通过率从 28% 改到 41%，说明这一档放松了；里面哪些人被换进来，要有申请号对齐才算得出来。那一步在正式回放里做。</div>
+  </section>
+
+  <section id="proto">
+    <h2><span class="num">03</span>产品原型</h2>
+    <p>下面这个窗口可以点。默认是分析师用的本地评测台，右上角可以切到业界决策表，对照「通过率是输入还是输出」。表里的人数和比例是讲课例子。</p>
+    <div class="proto">
+      <div class="chrome">
+        <div class="chrome-bar">
+          <div class="dots" aria-hidden="true"><i></i><i></i><i></i></div>
+          <div class="chrome-title" id="chromeTitle">策略评测台 · 本地样本</div>
+          <div class="modes">
+            <button type="button" class="on" id="modeLocal">本地评测台</button>
+            <button type="button" id="modeIndustry">业界决策表</button>
+          </div>
+        </div>
+        <div class="sheet" id="sheetLocal">
+          <div class="sample-line">
+            <span>样本 · 2024 年三季度信用卡新申请摘录 · 8,000 笔 · 特征已冻结</span>
+            <span>冠军 v18 只读 · 候选 v19</span>
+          </div>
+          <table class="grid" id="localGrid">
+            <thead>
+              <tr><th>客群</th><th>样本人数</th><th>冠军通过率</th><th>候选通过率</th><th>差异</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+          <div class="actions">
+            <span class="caption" style="margin:0">改候选通过率，再跑这一版。模型只标格子，不改表。</span>
+            <button type="button" class="run" id="runBtn">跑这一版</button>
+          </div>
+          <div class="result" id="result">
+            <div class="panel">
+              <h4>这一版相对冠军</h4>
+              <div id="summary"></div>
+              <div class="flag" id="flags"></div>
+            </div>
+            <div class="panel">
+              <h4>审计里留下的内容</h4>
+              <div class="audit" id="audit"></div>
+            </div>
+          </div>
+        </div>
+        <div class="sheet" id="sheetIndustry" hidden>
+          <div class="sample-line">
+            <span>生产决策表的形状 · 分析师改左边三列 · 通过率是回放写回来的</span>
+            <span>候选尚未发布</span>
+          </div>
+          <table class="grid">
+            <thead>
+              <tr><th>客群</th><th>分数线</th><th>额度上限</th><th>拒绝原因</th><th>回放通过率</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>优质</td><td>720</td><td>12,000</td><td>分数不足</td><td>64% · 算出</td></tr>
+              <tr class="hot"><td>近优</td><td>640 ← 由 660 下调</td><td>6,000</td><td>负债率过高</td><td>41% · 算出</td></tr>
+              <tr><td>薄档案</td><td>有分即可，额度封顶</td><td>1,500</td><td>档案不足</td><td>12% · 算出</td></tr>
+              <tr><td>学生 / 新客</td><td>680</td><td>2,000</td><td>收入未核实</td><td>18% · 算出</td></tr>
+            </tbody>
+          </table>
+          <div class="note">近优这一行分数线从 660 降到 640，回放才把通过率从 28% 抬到 41%。分析师不能在决策引擎里把通过率直接写成 41%。你们的本地台没有搬这套引擎，所以评测表上让人直接改各档通过率，用来表达「这一档打算放松还是收紧」。</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="arch">
+    <h2><span class="num">04</span>技术架构</h2>
+    <p>一个内部 Web 服务就够了。格子、样本、版本、模型和审计都归它。没有再拆一排微服务，也没有把美国的决策引擎重写一遍。</p>
+    <div class="diagram">
+      <pre class="mermaid">
+flowchart LR
+  subgraph desk [本地评测台]
+    ui[格子页面]
+    svc[评测服务]
+    sample[(冻结样本)]
+    ver[(策略版本)]
+    audit[(审计日志)]
+    ui --> svc
+    svc --> sample
+    svc --> ver
+    svc --> audit
+  end
+  docs[按策略类型挂好的制度文档] --> svc
+  svc --> llm[公司允许的模型接口]
+  llm --> svc
+  subgraph us [本地没有重建]
+    engine[生产决策引擎]
+    full[全量逐笔回放]
+    live[线上挑战者]
+  end
+  audit -. 人确认后走正式变更 .-> engine
+      </pre>
+    </div>
+    <p class="caption">虚线不是自动发布。分析师接受或驳回标记之后，变更仍走原来的上线流程。</p>
+    <div class="cols">
+      <div class="card">
+        <h3>服务里有四张东西</h3>
+        <ul class="clean">
+          <li>样本：申请号、客群、申请时点特征、冠军当时的结论。</li>
+          <li>版本：谁在什么时候把哪一格从多少改到多少。</li>
+          <li>结果：这一版各档人数和通过率，以及和冠军的差。</li>
+          <li>审计：用了哪几份制度、送给模型的差异、模型原文、人的处置。</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>页面上分析师能做的事</h3>
+        <ul class="clean">
+          <li>选一份已经冻结的样本，打开冠军版本。</li>
+          <li>复制出候选，改客群格子。</li>
+          <li>提交一个小任务。几个候选可以并排跑。</li>
+          <li>读标记，留下「采纳 / 驳回」。</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="run">
+    <h2><span class="num">05</span>点一次「跑这一版」</h2>
+    <div class="diagram">
+      <pre class="mermaid">
+sequenceDiagram
+  participant A as 分析师
+  participant U as 评测服务
+  participant S as 冻结样本
+  participant M as 模型接口
+  participant D as 审计
+  A->>U: 保存候选 v19
+  U->>S: 按格子重算各档
+  S-->>U: 通过率和差异
+  U->>M: 规则、制度和差异
+  M-->>U: 可疑格子
+  U->>D: 写入审计
+  U-->>A: 展示标记
+      </pre>
+    </div>
+    <p>任务很小，所以分析师等在页面上就能看完。多个候选版本各跑各的，比的是同一份样本。样本里没有表现窗口时，结果区只谈通过率差异，不谈坏账改善。</p>
+    <div class="note">正式回放还会按申请号做连接：同一笔申请在冠军和候选下各有一个通过或拒绝，才能数换入和换出。本地台如果只汇总到客群，面试里就说到格子差异为止，把逐笔对账留给美国那套平台。</div>
+  </section>
+
+  <section id="model">
+    <h2><span class="num">06</span>模型怎么评审，检索为什么停</h2>
+    <p>没有微调。一次接口调用。系统提示里是评审规则：某一档相对冠军偏离过大，相邻客群通过率倒挂，改动和书面制度冲突，就标出来。上下文里放这次格子差异，以及这份策略对应的那几份制度。制度是按策略类型事先挂好的，不是临时从网上搜。</p>
+    <p>检索起过一条最小的路，没有进这条主路径。制度按章节切开，用同一家模型的向量接口做成向量，放在内网的小索引里。评审时用被改的格子和规则原文去查，打算把命中的几段拼进提示词。</p>
+    <div class="cols">
+      <div class="card">
+        <h3>主路径</h3>
+        <ul class="clean">
+          <li>策略类型决定挂哪几份制度。</li>
+          <li>差异和制度原文一起交给模型。</li>
+          <li>同一版差异，下次还能复现同一份输入。</li>
+          <li>标记入库，人处置。</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>检索停在主路径之外</h3>
+        <ul class="clean">
+          <li>制度不长，人已经站在那个格子上，相关条款是确定的。</li>
+          <li>检索经常把相邻产品的条款带进来，比指定文档更吵。</li>
+          <li>索引一更新，同样的差异会检出不同段落，审计对不上。</li>
+        </ul>
+      </div>
+    </div>
+    <p>所以面试里可以这样收：检索没有进主路径。正式评审按策略类型挂好固定制度，和格子差异一起交给模型，标记全部入库。</p>
+  </section>
+
+  <section id="clock">
+    <h2><span class="num">07</span>三周到三天说的是哪段等待</h2>
+    <p>时钟的起点是「这版策略改动提出来」，终点是「评测意见可以交回去」。三周里大头是等美国平台排期、等全量回放、再人工从头读。三天是分析师在本地样本上自己重算，并且先看被标出的格子。</p>
+    <div class="warn">不要把三天讲成全量回放变快了，也不要讲成模型批准了策略。样本不是全量生产流量。抓到的是规则配错，例如某一档一次抬得过高、相邻档倒挂。两个月里三十多条，指分析师确认过的这类配错。线上坏账好不好，本地台回答不了。</div>
+    <h3>讲的时候按这个顺序</h3>
+    <div class="say">
+      <div>美国平台做全量逐笔回放和上线。我们做国内分析师能自己跑的缩小版。</div>
+      <div>页面是客群格子。小任务在冻结样本上重算各档，几个版本并排比。</div>
+      <div>模型是第二遍检查。制度按策略类型固定放进提示词。每条标记入库，人签字。</div>
+      <div>检索做过按章节切分和内网向量索引，因为复现和噪声停在主路径外。</div>
+    </div>
+  </section>
+
+  <footer>
+    原型里的 8,000 笔、通过率和分数线都是为了把流程讲清楚。制度没有使用真实文件名。生产决策、全量换入换出和挑战者实验不在这个本地台里。
+  </footer>
+</div>
+<script>
+const rows = [
+  { id: "prime", name: "优质", n: 3200, champ: 62, cand: 64 },
+  { id: "near", name: "近优", n: 2800, champ: 28, cand: 41 },
+  { id: "thin", name: "薄档案", n: 1200, champ: 11, cand: 12 },
+  { id: "student", name: "学生 / 新客", n: 800, champ: 22, cand: 18 }
+];
+
+const tbody = document.querySelector("#localGrid tbody");
+rows.forEach((row) => {
+  const tr = document.createElement("tr");
+  tr.dataset.id = row.id;
+  tr.innerHTML = `
+    <td>${row.name}</td>
+    <td>${row.n.toLocaleString("zh-CN")}</td>
+    <td>${row.champ}%</td>
+    <td><input type="number" min="0" max="100" step="1" value="${row.cand}" aria-label="${row.name}候选通过率" /></td>
+    <td class="delta">—</td>`;
+  tbody.appendChild(tr);
+});
+
+function read() {
+  return [...tbody.querySelectorAll("tr")].map((tr) => {
+    const base = rows.find((r) => r.id === tr.dataset.id);
+    const cand = Number(tr.querySelector("input").value);
+    return { ...base, cand, delta: cand - base.champ, tr };
+  });
+}
+
+function paint(list) {
+  list.forEach((row) => {
+    const cell = row.tr.querySelector(".delta");
+    const sign = row.delta > 0 ? "+" : "";
+    cell.textContent = sign + row.delta + " pct";
+    cell.className = "delta " + (row.delta > 0 ? "delta-up" : row.delta < 0 ? "delta-down" : "");
+    row.tr.classList.toggle("hot", Math.abs(row.delta) >= 8);
+    row.tr.classList.toggle("ok", Math.abs(row.delta) > 0 && Math.abs(row.delta) < 8);
+  });
+}
+
+document.getElementById("runBtn").addEventListener("click", () => {
+  const list = read();
+  paint(list);
+  const total = list.reduce((s, r) => s + r.n, 0);
+  const champPass = list.reduce((s, r) => s + r.n * r.champ, 0) / total;
+  const candPass = list.reduce((s, r) => s + r.n * r.cand, 0) / total;
+  const flags = [];
+  list.forEach((row) => {
+    if (Math.abs(row.delta) >= 8) {
+      flags.push(`<b>${row.name}</b> 通过率 ${row.champ}% → ${row.cand}%。单档偏离达到 ${Math.abs(row.delta)} 个点，制度要求说明这档放松或收紧的风险假设。样本没有表现窗口，不能把它写成坏账改善。`);
+    }
+  });
+  const ordered = [...list].sort((a, b) => b.champ - a.champ);
+  for (let i = 1; i < ordered.length; i++) {
+    if (ordered[i].cand > ordered[i - 1].cand + 5) {
+      flags.push(`<b>${ordered[i].name}</b> 的候选通过率高于更优档 <b>${ordered[i - 1].name}</b>，相邻客群倒挂。`);
+    }
+  }
+  if (!flags.length) flags.push("这一版各档偏离都在 8 个点以内，模型没有标出必须人工解释的格子。审计仍然记下这次输入。");
+  document.getElementById("summary").innerHTML =
+    `样本 ${total.toLocaleString("zh-CN")} 笔。冠军整体通过率 ${champPass.toFixed(1)}%，候选 ${candPass.toFixed(1)}%。这是格子加权，不是逐笔换入人数。`;
+  document.getElementById("flags").innerHTML = flags.map((f) => `<div class="flag">${f}</div>`).join("");
+  document.getElementById("audit").textContent =
+    "version: v19\nsample: 2024Q3-card-excerpt\ndocs: 通过率调整制度, 客群档位定义\nprompt: 评审规则 + 上述制度 + 四档差异\nmodel: 标记原文已保存\nhuman: 尚未处置";
+  document.getElementById("result").classList.add("show");
+});
+
+document.getElementById("modeLocal").addEventListener("click", () => switchMode(true));
+document.getElementById("modeIndustry").addEventListener("click", () => switchMode(false));
+function switchMode(local) {
+  document.getElementById("sheetLocal").hidden = !local;
+  document.getElementById("sheetIndustry").hidden = local;
+  document.getElementById("modeLocal").classList.toggle("on", local);
+  document.getElementById("modeIndustry").classList.toggle("on", !local);
+  document.getElementById("chromeTitle").textContent = local
+    ? "策略评测台 · 本地样本"
+    : "生产决策表 · 对照";
+}
+
+mermaid.initialize({
+  startOnLoad: true,
+  theme: "base",
+  securityLevel: "loose",
+  flowchart: { curve: "basis", htmlLabels: true, nodeSpacing: 28, rankSpacing: 36 },
+  themeVariables: {
+    fontFamily: "WenQuanYi Micro Hei, sans-serif",
+    fontSize: "15px",
+    primaryColor: "#f7f1e4",
+    primaryTextColor: "#1a1814",
+    primaryBorderColor: "#1b3f32",
+    lineColor: "#5c564c",
+    secondaryColor: "#e5f0e8",
+    tertiaryColor: "#fbf7ef",
+    clusterBkg: "#f3ecdf",
+    clusterBorder: "#1b3f32"
+  }
+});
+</script>
+</body>
+</html>
